@@ -57,5 +57,5 @@ class JSON(amp.String):
         return amp.String.toString(self, json.dumps(val))
 
     def fromString(self, val):
-        return json.loads(self, amp.String.fromString(val))
+        return json.loads(amp.String.fromString(self, val))
 
