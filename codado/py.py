@@ -1,6 +1,8 @@
 """
 Missing batteries from Python
 """
+import inspect
+import types
 
 def eachMethod(decorator, methodFilter=lambda fName: True):
     """
@@ -13,8 +15,6 @@ def eachMethod(decorator, methodFilter=lambda fName: True):
     methodFilter can also be simply a string prefix. If it is a string, it is
     assumed to be the prefix we're looking for.
     """
-    raise NotImplementedError("We can't figure out how to use this! :(")
-
     if isinstance(methodFilter, basestring):
         # Is it a string? If it is, change it into a function that takes a string.
         prefix = methodFilter
@@ -22,8 +22,13 @@ def eachMethod(decorator, methodFilter=lambda fName: True):
 
     def innerDeco(cls):
         for fName, fn in inspect.getmembers(cls):
-            if type(fn) is types.UnboundMethodType and methodFilter(fName):
-                setattr(cls, fName, decorator(fn))
+            if type(fn) is types.MethodType and methodFilter(fName):
+                if fn.im_self is None:
+                    # this is an unbound instance method
+                    setattr(cls, fName, decorator(fn))
+                else:
+                    assert fn.im_class is type, "This should be a classmethod but it doesn't look like one: %r" % fName
+                    setattr(cls, fName, classmethod(decorator(fn)))
 
         return cls
     return innerDeco
@@ -33,10 +38,18 @@ class enum(dict):
     """
     Create a simple attribute list from keys
     """
+    @classmethod
+    def fromkeys(cls, keys):
+        ret = cls()
+        dd = []
+        for k in keys:
+            dd.append((k, k))
+        ret.update(dict(dd))
+        return ret
+ 
     def __getattr__(self, attr):
-        v = self[attr]
-        if v is None:
-            return attr
-        return v
-
+        try:
+            return self[attr]
+        except KeyError:
+            raise AttributeError(attr)
 
