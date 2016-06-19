@@ -2,8 +2,8 @@
 Useful utilities
 """
 
-from codado.py import enum, eachMethod
+from codado.py import enum, eachMethod, fromdir
 
-(enum, eachMethod)
+(enum, eachMethod, fromdir)
 
-__all__ = ['enum', 'eachMethod']
+__all__ = ['enum', 'eachMethod', 'fromdir']
