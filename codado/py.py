@@ -143,3 +143,9 @@ class fromdir(object):
         os.chdir(self._origDir)
 
 
+
+def temp():
+    """
+    Temp commit to verify that travis fails on missing coverage
+    """
+    print 'hi'
