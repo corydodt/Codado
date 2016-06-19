@@ -8,6 +8,7 @@ setup(
   use_incremental = True,
   version = _version.__version__.base(),
   setup_requires = ['incremental'],
+  install_requires = ['incremental'],
   description = 'A collection of system development utilities',
   author = 'Cory Dodt',
   author_email = 'corydodt@gmail.com',
