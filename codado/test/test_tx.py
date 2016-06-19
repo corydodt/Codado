@@ -30,9 +30,12 @@ class TwistedTest(unittest.TestCase):
         self.assertEqual(js.toString({}), '{}')
         self.assertEqual(js.toString(['a', 'b']), '["a", "b"]')
         self.assertEqual(js.toString(['a', 'b']), '["a", "b"]')
-        # minor assymmetry: json key names MUST be strings, so int(345) as a key becomes string "345"
+        # Minor assymmetry: json key names MUST be strings, so int(345) as a
+        # key becomes string "345".
+        # However, since int(345) sorts BEFORE str("234"), the keys arrive in
+        # this order. :shrug_emoji:
         self.assertEqual(js.toString({'abc': 1, '234': 234.5, 345: '345'}), 
-                '{"234": 234.5, "345": "345", "abc": 1}')
+                '{"345": "345", "234": 234.5, "abc": 1}')
 
     def test_JSONfromString(self):
         """

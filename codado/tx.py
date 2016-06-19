@@ -54,7 +54,7 @@ class JSON(amp.String):
     Automatic marshalling through JSON (AMP type)
     """
     def toString(self, val):
-        return amp.String.toString(self, json.dumps(val))
+        return amp.String.toString(self, json.dumps(val, sort_keys=True))
 
     def fromString(self, val):
         return json.loads(amp.String.fromString(self, val))
