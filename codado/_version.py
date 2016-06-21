@@ -1,4 +1,2 @@
-from incremental import Version
-
-__version__ = Version("codado", 0, 2, 1)
+__version__ = "0.2.3"
 __all__ = ["__version__"]

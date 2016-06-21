@@ -5,8 +5,7 @@ from codado import _version
 setup(
   name = 'Codado',
   packages = ['codado'],
-  use_incremental = True,
-  version = _version.__version__.base(),
+  version = _version.__version__,
   description = 'A collection of system development utilities',
   author = 'Cory Dodt',
   author_email = 'corydodt@gmail.com',
