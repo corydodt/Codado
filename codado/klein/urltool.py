@@ -1,5 +1,7 @@
 """
 URLtool - tool for documenting http API and building API clients
+
+This assumes using codado.klein.tree.enter() decorator
 """
 import re
 
@@ -29,23 +31,22 @@ class Options(Main):
         iterableRules = [(prefix, cls, cls.app.url_map.iter_rules())]
         for prefix, currentClass, i in iter(iterableRules):
             for rule in i:
-                rtop = dumpRule(currentClass, rule, prefix)
-                urlKey = rtop.keys()[0]
-                if rtop[urlKey].branch:
+                utr = dumpRule(currentClass, rule, prefix)
+                if utr.branch:
                     continue
 
-                if rtop[urlKey].subKlein:
-                    clsDown = namedAny(rtop[urlKey].subKlein)
-                    iterableRules.append((urlKey, clsDown, clsDown.app.url_map.iter_rules()))
+                if utr.subKlein:
+                    clsDown = namedAny(utr.subKlein)
+                    iterableRules.append((utr.rulePath, clsDown, clsDown.app.url_map.iter_rules()))
 
-                yield rtop
+                yield utr
 
     def postOptions(self):
         rootCls = namedAny(self['classQname'])
         rules = list(self._iterClass(rootCls))
         for item in sorted(rules):
-            if re.search(self['filt'], item.keys()[0]):
-                print yaml.dump(item)
+            if re.search(self['filt'], item.rulePath):
+                print yaml.dump({item.rulePath: item})
 
 
 @attr.s
@@ -66,9 +67,8 @@ class URLToolRule(object):
 
     @staticmethod
     def asYAML(dumper, data):
-        return dumper.represent_dict(
-                attr.asdict(data, filter=URLToolRule.filterDump)
-                )
+        dictSelf = attr.asdict(data, filter=URLToolRule.filterDump)
+        return dumper.represent_dict(dictSelf)
 
 
 yaml.add_representer(URLToolRule, URLToolRule.asYAML)
@@ -86,14 +86,6 @@ def dumpRule(serviceCls, rule, prefix):
             endpoint=rule.endpoint
             )
 
-    # edit _branch endpoints to provide the true method name
-    origEP = utr.endpoint
-    if origEP.endswith('_branch'):
-        origEP = origEP[:-7]
-        utr.branch = True
-    utr.endpoint = '%s.%s' % (serviceCls.__name__, origEP)
-    meth = getattr(serviceCls, origEP)
-
     # look for methods other than GET and HEAD, and note them
     interestingMethods = []
     if rule.methods:
@@ -103,12 +95,23 @@ def dumpRule(serviceCls, rule, prefix):
     if interestingMethods and interestingMethods != ['GET']:
         utr.methods = interestingMethods
 
+    # edit _branch endpoints to provide the true method name
+    origEP = utr.endpoint
+    if origEP.endswith('_branch'):
+        origEP = origEP[:-7]
+        utr.branch = True
+    utr.endpoint = '%s.%s' % (serviceCls.__name__, origEP)
+    # get the actual method so we can inspect it for extension attributes
+    meth = getattr(serviceCls, origEP)
+
     ## if hasattr(meth, "_roles"):
     ##     utr.roles = meth._roles
+
     ## if hasattr(meth, '_json'):
     ##     utr.json = meth._json
+
     if hasattr(meth, '_subKleinQname'):
         utr.subKlein = meth._subKleinQname
 
-    return {rulePath: utr}
+    return utr
 

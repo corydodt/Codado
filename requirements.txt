@@ -1,3 +1,4 @@
+attrs
 coverage
 mock
 pytest-flakes
