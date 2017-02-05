@@ -12,4 +12,5 @@ setup(
   url = 'https://github.com/corydodt/Codado',
   keywords = ['twisted', 'utility'],
   classifiers = [],
+  scripts = ['bin/urltool'],
 )

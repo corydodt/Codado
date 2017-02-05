@@ -1,7 +1,7 @@
 """
 URLtool - tool for documenting http API and building API clients
 
-This assumes using codado.klein.tree.enter() decorator
+This assumes using codado.kleinish.tree.enter() decorator
 """
 import re
 
@@ -11,7 +11,9 @@ from twisted.python.reflect import namedAny
 
 import yaml
 
-from codado.tx import Main
+# from codado.tx import Main
+
+class Main: pass
 
 
 class Options(Main):

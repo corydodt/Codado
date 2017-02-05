@@ -3,3 +3,4 @@ coverage
 mock
 pytest-flakes
 pytest-cov
+werkzeug
