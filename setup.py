@@ -4,7 +4,7 @@ from codado import _version
 
 setup(
   name = 'Codado',
-  packages = ['codado'],
+  packages = ['codado', 'codado.kleinish'],
   version = _version.__version__,
   description = 'A collection of system development utilities',
   author = 'Cory Dodt',

@@ -11,9 +11,7 @@ from twisted.python.reflect import namedAny
 
 import yaml
 
-# from codado.tx import Main
-
-class Main: pass
+from codado.tx import Main
 
 
 class Options(Main):
