@@ -59,6 +59,9 @@ class URLToolRule(object):
 
     @staticmethod
     def filterDump(atr, val):
+        """
+        Clean up the dict representation for yaml output
+        """
         if not val:
             return False
         if atr.name == 'rulePath':
@@ -67,6 +70,9 @@ class URLToolRule(object):
 
     @staticmethod
     def asYAML(dumper, data):
+        """
+        YAML representer, using filterDump to prune the dict
+        """
         dictSelf = attr.asdict(data, filter=URLToolRule.filterDump)
         return dumper.represent_dict(dictSelf)
 
