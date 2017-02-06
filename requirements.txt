@@ -3,5 +3,6 @@ coverage
 mock
 pytest-flakes
 pytest-cov
+pytest-twisted
 pyyaml
 werkzeug
