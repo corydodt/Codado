@@ -20,6 +20,6 @@ class TopApp(object):
 class SubApp(object):
     app = Klein()
 
-    @app.route('/end')
+    @app.route('/end', methods=['POST'])
     def end(self, request):
         return 'hi'

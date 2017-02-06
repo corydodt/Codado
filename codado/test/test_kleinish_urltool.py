@@ -2,6 +2,7 @@
 Tests of the urltool command-line program
 """
 import re
+from inspect import cleandoc
 
 from pytest import fixture
 
@@ -43,7 +44,22 @@ def test_parseArgs(options):
     """
     Do I correct default the filter argument
     """
-    options.parseArgs('codado.test.test_urltool.Blarb')
+    options.parseArgs('codado.test.conftest.TopApp')
     assert options['filt'] == re.compile('.*')
-    options.parseArgs('codado.test.test_urltool.Blarb', 'hello')
+    options.parseArgs('codado.test.conftest.TopApp', 'hello')
     assert options['filt'] == re.compile('hello')
+
+
+def test_postOptions(options, capsys):
+    """
+    Do I produce some nicely-formatted output
+    """
+    options.parseArgs('codado.test.conftest.TopApp')
+    options.postOptions()
+    assert capsys.readouterr()[0].strip() == cleandoc("""
+        /sub/: {endpoint: TopApp.subTree, subKlein: codado.test.conftest.SubApp}
+
+        /sub/end:
+          endpoint: SubApp.end
+          methods: [POST]
+        """)

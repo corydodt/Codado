@@ -51,6 +51,9 @@ class Options(Main):
 
 @attr.s
 class URLToolRule(object):
+    """
+    An atom of structured information about one route
+    """
     rulePath = attr.ib()
     endpoint = attr.ib()
     branch = attr.ib(default=False)
@@ -93,13 +96,9 @@ def dumpRule(serviceCls, rule, prefix):
             )
 
     # look for methods other than GET and HEAD, and note them
-    interestingMethods = []
-    if rule.methods:
-        interestingMethods = list(rule.methods)
-        if 'HEAD' in interestingMethods:
-            interestingMethods.remove('HEAD')
-    if interestingMethods and interestingMethods != ['GET']:
-        utr.methods = interestingMethods
+    for meth in rule.methods or []:
+        if meth not in ['HEAD', 'GET']:
+            utr.methods.append(meth)
 
     # edit _branch endpoints to provide the true method name
     origEP = utr.endpoint
