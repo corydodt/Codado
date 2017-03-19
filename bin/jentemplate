@@ -13,4 +13,4 @@ from jinja2 import Template
 
 inputFile = open(sys.argv[1], 'rb')
 tpl = Template(inputFile.read())
-print tpl.render(**os.environ)
+print tpl.render(__environ__=os.environ, **os.environ)
