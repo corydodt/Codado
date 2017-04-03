@@ -60,6 +60,9 @@ class MainTest(unittest.TestCase):
         Return a new instance of an Options for testing
         """
         class O(tx.Main):
+            """
+            I am the longdesc
+            """
             optParameters = [['flag', 'f', None, None]]
             optFlags = [['hello', None, 'Say hello']]
             def parseArgs(self, *a):
@@ -125,5 +128,36 @@ class MainTest(unittest.TestCase):
             ret = io.getvalue().strip()
             self.assertEqual(ret, '')
 
+    def test_subCommands(self):
+        """
+        When a subcommand is involved, we get the right help
+        """
+        pExit = patch.object(sys, 'exit', autospec=True)
+        pArgv = patch.object(sys, 'argv', ('o',))
+
+        class Sub(tx.Main):
+            "I am sub longdesc"
+            synopsis = "i am sub synopsis"
+
+        cls = self.options("O")
+        class HasSub(cls):
+            subCommands = [['sub', None, Sub, None]]
+            def postOptions(self):
+                pass
+
+        with self.patchIO() as io, pArgv:
+            exit = HasSub().main(["sub", "dsfasdfadf"])
+            val = io.getvalue().strip()
+            self.assertRegexpMatches(val, r'Usage: o i am sub synopsis')
+            self.assertEqual(exit, 1)
+
+        with self.patchIO() as io, pArgv, pExit as mExit:
+            opt = HasSub()
+            exit = opt.main(["sub", "--help"])
+            val = io.getvalue().strip()
+            self.assertRegexpMatches(val, r'Usage: o i am sub synopsis')
+            self.assertRegexpMatches(val, r'I am sub longdesc')
+            self.assertEqual(exit, 0)
+            mExit.assert_called_once_with(0)
 
 __all__ = ['MainTest', 'TwistedTest']

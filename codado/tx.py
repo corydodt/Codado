@@ -54,12 +54,14 @@ class Main(usage.Options):
         return 0
 
     def getSynopsis(self):
-        base = "Usage: whisk "
+        base = "Usage: %s " % sys.argv[0]
         if hasattr(self, 'subOptions'):
+            # we hit this when an error occurs parsing a subcommand's options
             addl = getattr(self.subOptions, 'synopsis')
         elif self.parent is None:
             addl = ''
         else:
+            # we hit this when user runs `cmd subcommand --help`
             addl = getattr(self, 'synopsis')
         return base + addl
 
