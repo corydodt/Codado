@@ -27,6 +27,10 @@ class Main(usage.Options):
     """
     Extends usage.Options to include a runnable main func
     """
+    @property
+    def longdesc(self):
+        return self.__doc__
+
     @classmethod
     def main(cls, args=None):
         """
@@ -39,7 +43,8 @@ class Main(usage.Options):
             o = cls()
             o.parseOptions(args)
         except usage.UsageError, e:
-            print str(o)
+            print o.getSynopsis()
+            print o.getUsage()
             print str(e)
             return 1
         except CLIError, ce:
@@ -47,6 +52,16 @@ class Main(usage.Options):
             return ce.returnCode
 
         return 0
+
+    def getSynopsis(self):
+        base = "Usage: whisk "
+        if hasattr(self, 'subOptions'):
+            addl = getattr(self.subOptions, 'synopsis')
+        elif self.parent is None:
+            addl = ''
+        else:
+            addl = getattr(self, 'synopsis')
+        return base + addl
 
 
 class JSON(amp.String):
