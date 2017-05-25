@@ -7,10 +7,10 @@ from twisted.internet import reactor
 
 import attr
 
-from docker import Client
+import docker
 
 
-SOCKET = 'unix://var/run/docker.sock'
+ALL_EVENTS = '__all_events__'
 
 
 @attr.s
@@ -33,6 +33,9 @@ class EventActor(object):
 
 @attr.s
 class Event(object):
+    """
+    A generic docker event, constructed from the dict returned by docker-py
+    """
     status = attr.ib()
     id = attr.ib()
     time = attr.ib()
@@ -41,20 +44,58 @@ class Event(object):
     action = attr.ib()
     eventFrom = attr.ib()
     eventType = attr.ib()
+    engine = attr.ib()
+
+    @property
+    def container(self):
+        try:
+            return self.engine.client.containers.get(self.id)
+        except docker.errors.NotFound:
+            # usually, a die/destroy event provides the container id of a
+            # container that's already gone
+            return None
+
+    @property
+    def image(self):
+        return self.engine.client.images.get(self.actor.name)
+
+    @property
+    def plugin(self):
+        return self.engine.client.plugins.get(self.actor.name)
+
+    @property
+    def volume(self):
+        return self.engine.client.volumes.get(self.id)
+
+    @property
+    def network(self):
+        if self.id is None:
+            return None
+        return self.engine.client.networks.get(self.id)
+
+    @property
+    def daemon(self):
+        return self.engine.client
 
     @property
     def name(self):
+        """
+        The dotted event name, e.g. `container.die`
+        """
         return ".".join([self.eventType, self.action])
 
     @classmethod
-    def fromLowLevelEvent(cls, dct):
+    def fromLowLevelEvent(cls, engine, dct):
+        """
+        Use the raw event dict from docker-py to build an Event
+        """
         actor = dct.pop('Actor')
         action = dct.pop('Action')
         eventType = dct.pop('Type')
         eventFrom = dct.pop('from', None)
         id = dct.pop('id', None)
         status = dct.pop('status', None)
-        return Event(actor=actor, eventFrom=eventFrom, eventType=eventType,
+        return Event(engine=engine, actor=actor, eventFrom=eventFrom, eventType=eventType,
                 action=action, id=id, status=status, **dct)
 
 
@@ -63,11 +104,21 @@ PEEK_INTERVAL_SECONDS = 0.5
 
 @attr.s
 class DockerEngine(object):
-    base_url = attr.ib(default=SOCKET)
+    """
+    Connection to and interface with a docker engine. Listens for events
+    from docker by sampling every 0.2s, then reports these events to bound
+    listeners, which are created using the @handler decorator.
+    """
     handlers = attr.ib(default=attr.Factory(dict))
-    _stopping = False
 
     def __get__(self, instance, cls):
+        """
+        Set the 'owner' on the DockerEngine instance, as a side effect of
+        accessing the attribute from the owner
+
+        FIXME: is there a cleaner way to do this than relying on the side
+        effect of accessing the descriptor?
+        """
         if instance is None:
             return self
 
@@ -75,23 +126,39 @@ class DockerEngine(object):
         return self
 
     def run(self):
-        client = Client(base_url=self.base_url)
-        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, client, time.time())
+        """
+        Connect to the docker engine and begin listening for docker events
+        """
+        self.client = docker.from_env()
+        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, time.time())
 
-    def _genEvents(self, client, since):
+    def _genEvents(self, since):
+        """
+        Gather docker events, beginning from the timestamp `since`.
+        """
         until = time.time()
-        for llEvent in client.events(
+        for llEvent in self.client.events(
                 decode=True,
                 since=since,
                 until=until):
-            ev = Event.fromLowLevelEvent(llEvent)
+            ev = Event.fromLowLevelEvent(self, llEvent)
+
+            for func_name in self.handlers.get(ALL_EVENTS, ()):
+                getattr(self.owner, func_name)(ev)
+
             for func_name in self.handlers.get(ev.name, ()):
                 getattr(self.owner, func_name)(ev)
-        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, client, until)
+
+        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, until)
 
     def handler(self, eventName):
         """
         Register a method or function as a handler for an event
+
+        `eventName` must be specified as a dotted notation which categorizes
+        each event, such as `container.die` or `image.pull`.
+
+        The category determines 
         """
         def _deco(fn):
             print "Making %r a handler for %r" % (fn.__name__, eventName)
@@ -99,3 +166,10 @@ class DockerEngine(object):
             return fn
         return _deco
 
+    def defaultHandler(self, fn):
+        """
+        Register a method or function as a handler for ALL events
+
+        You may register multiple methods or functions as defaultHandlers
+        """
+        return self.handler(ALL_EVENTS)(fn)

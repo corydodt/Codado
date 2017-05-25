@@ -19,14 +19,20 @@ class AppMourner(object):
 
     @engine.handler("container.die")
     def onDie(self, event):
-        print event
-        print event.container
+        print '*' * 5, 'died:', event.container
         self.count = self.count + 1
         if self.count == 3:
             reactor.stop()
 
+    @engine.defaultHandler
+    def onWhatever(self, event):
+        if event.name in ['container.die']:
+            return
+        obj = getattr(event, event.eventType)
+        print ' '*5, 'other:', event.name, obj
 
-mourner = NomsMourner()
+
+mourner = AppMourner()
 reactor.callWhenRunning(mourner.engine.run)
 reactor.run()
 
