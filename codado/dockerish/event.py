@@ -12,9 +12,66 @@ import docker
 
 ALL_EVENTS = '__all_events__'
 
+VALID_EVENTS = (
+    ALL_EVENTS,
+    'container.attach',
+    'container.commit',
+    'container.copy',
+    'container.create',
+    'container.destroy',
+    'container.detach',
+    'container.die',
+    'container.exec_create',
+    'container.exec_detach',
+    'container.exec_start',
+    'container.export',
+    'container.health_status',
+    'container.kill',
+    'container.oom',
+    'container.pause',
+    'container.rename',
+    'container.resize',
+    'container.restart',
+    'container.start',
+    'container.stop',
+    'container.top',
+    'container.unpause',
+    'container.update',
+
+    'image.delete',
+    'image.import',
+    'image.load',
+    'image.pull',
+    'image.push',
+    'image.save',
+    'image.tag',
+    'image.untag',
+
+    'plugin.install',
+    'plugin.enable',
+    'plugin.disable',
+    'plugin.remove',
+
+    'volume.create',
+    'volume.mount',
+    'volume.unmount',
+    'volume.destroy',
+
+    'network.create',
+    'network.connect',
+    'network.disconnect',
+    'network.destroy',
+
+    'daemon.reload',
+)
+
 
 @attr.s
 class EventActor(object):
+    """
+    The source of the event, e.g. the container for a start event or the image
+    for a pull event.
+    """
     image = attr.ib()
     name = attr.ib()
     signal = attr.ib()
@@ -49,10 +106,9 @@ class Event(object):
     @property
     def container(self):
         try:
-            return self.engine.client.containers.get(self.id)
+            return self.engine.client.containers.get(self.actor.id)
         except docker.errors.NotFound:
-            # usually, a die/destroy event provides the container id of a
-            # container that's already gone
+            # This mainly happens when a container dies or is destroyed
             return None
 
     @property
@@ -65,13 +121,15 @@ class Event(object):
 
     @property
     def volume(self):
-        return self.engine.client.volumes.get(self.id)
+        return self.engine.client.volumes.get(self.actor.id)
 
     @property
     def network(self):
-        if self.id is None:
+        try:
+            return self.engine.client.networks.get(self.actor.id)
+        except docker.errors.NotFound:
+            # This mainly happens when a network is destroyed
             return None
-        return self.engine.client.networks.get(self.id)
 
     @property
     def daemon(self):
@@ -162,6 +220,7 @@ class DockerEngine(object):
         """
         def _deco(fn):
             print "Making %r a handler for %r" % (fn.__name__, eventName)
+            assert eventName in VALID_EVENTS, "%r is not a docker event" % eventName
             self.handlers.setdefault(eventName, []).append(fn.__name__)
             return fn
         return _deco
