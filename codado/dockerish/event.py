@@ -63,6 +63,9 @@ VALID_EVENTS = (
     'network.destroy',
 
     'daemon.reload',
+
+    # special event specific to the dockerish framework itself
+    'dockerish.init',
 )
 
 
@@ -79,12 +82,21 @@ class EventActor(object):
 
     @classmethod
     def fromLowLevelActor(cls, dct):
+        """
+        Build an instance of this class from the dict coming from the
+        docker-py event
+        """
+        # this method is called automatically by convert= when instantiating
+        # an event, but we can skip it if we this is already an actual EventActor
+        if isinstance(dct, EventActor):
+            return dct
+
         a = dct['Attributes']
         id = dct['ID']
         return cls(
                 image=a.get('image', None),
                 name=a.get('name', None),
-                signal=a.get('signal', None), 
+                signal=a.get('signal', None),
                 id=id)
 
 
@@ -188,7 +200,25 @@ class DockerEngine(object):
         Connect to the docker engine and begin listening for docker events
         """
         self.client = docker.from_env()
+
+        now = time.time()
+        nowNano = now * 1000000000
+        startEvent = Event(status='init',
+                id=None,
+                time=int(now),
+                timeNano=int(nowNano),
+                actor=EventActor(image=None, name=None, signal=None, id=None),
+                action='init',
+                eventFrom=None,
+                eventType='dockerish',
+                engine=self,
+                )
+        reactor.callLater(0, self._callHandlers, 'dockerish.init', startEvent)
         reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, time.time())
+
+    def _callHandlers(self, eventName, event):
+        for func_name in self.handlers.get(eventName, ()):
+            getattr(self.owner, func_name)(event)
 
     def _genEvents(self, since):
         """
@@ -201,11 +231,8 @@ class DockerEngine(object):
                 until=until):
             ev = Event.fromLowLevelEvent(self, llEvent)
 
-            for func_name in self.handlers.get(ALL_EVENTS, ()):
-                getattr(self.owner, func_name)(ev)
-
-            for func_name in self.handlers.get(ev.name, ()):
-                getattr(self.owner, func_name)(ev)
+            self._callHandlers(ALL_EVENTS, ev)
+            self._callHandlers(ev.name, ev)
 
         reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, until)
 
@@ -216,7 +243,8 @@ class DockerEngine(object):
         `eventName` must be specified as a dotted notation which categorizes
         each event, such as `container.die` or `image.pull`.
 
-        The category determines 
+        The category determines what property is available on the event
+        object, for example ".container" for container events.
         """
         def _deco(fn):
             print "Making %r a handler for %r" % (fn.__name__, eventName)
