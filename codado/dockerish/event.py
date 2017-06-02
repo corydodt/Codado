@@ -1,10 +1,6 @@
 """
 Publish docker events
 """
-import time
-
-from twisted.internet import reactor
-
 import attr
 
 import docker
@@ -176,7 +172,7 @@ PEEK_INTERVAL_SECONDS = 0.5
 class DockerEngine(object):
     """
     Connection to and interface with a docker engine. Listens for events
-    from docker by sampling every 0.2s, then reports these events to bound
+    from docker by sampling every 0.5s, then reports these events to bound
     listeners, which are created using the @handler decorator.
     """
     handlers = attr.ib(default=attr.Factory(dict))
@@ -233,8 +229,6 @@ class DockerEngine(object):
 
             self._callHandlers(ALL_EVENTS, ev)
             self._callHandlers(ev.name, ev)
-
-        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, until)
 
     def handler(self, eventName):
         """
