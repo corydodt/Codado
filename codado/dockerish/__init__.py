@@ -20,4 +20,5 @@ engine.run()
 """
 
 from codado.dockerish.event import DockerEngine
+(DockerEngine,) # for pyflakes
 
