@@ -234,6 +234,8 @@ class DockerEngine(object):
             self._callHandlers(ALL_EVENTS, ev)
             self._callHandlers(ev.name, ev)
 
+        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, until)
+
     def handler(self, eventName):
         """
         Register a method or function as a handler for an event
