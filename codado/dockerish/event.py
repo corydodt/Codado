@@ -159,14 +159,17 @@ class Event(object):
         """
         Use the raw event dict from docker-py to build an Event
         """
-        actor = dct.pop('Actor')
-        action = dct.pop('Action')
-        eventType = dct.pop('Type')
-        eventFrom = dct.pop('from', None)
-        id = dct.pop('id', None)
-        status = dct.pop('status', None)
-        return Event(engine=engine, actor=actor, eventFrom=eventFrom, eventType=eventType,
-                action=action, id=id, status=status, **dct)
+        return Event(
+                engine=engine,
+                actor=dct.pop('Actor'),
+                eventFrom=dct.pop('from', None),
+                eventType=dct.pop('Type'),
+                action=dct.pop('Action'),
+                id=dct.pop('id', None),
+                status=dct.pop('status', None),
+                time=dct.pop('time'),
+                timeNano=dct.pop('timeNano'),
+                **dct)
 
 
 PEEK_INTERVAL_SECONDS = 0.5
