@@ -6,4 +6,5 @@ pytest-flakes
 pytest-cov
 pytest-twisted
 pyyaml
+twine
 werkzeug
