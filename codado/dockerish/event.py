@@ -184,6 +184,8 @@ class DockerEngine(object):
     """
     handlers = attr.ib(default=attr.Factory(dict))
 
+    callLater = reactor.callLater
+
     def __get__(self, instance, cls):
         """
         Set the 'owner' on the DockerEngine instance, as a side effect of
@@ -216,10 +218,16 @@ class DockerEngine(object):
                 eventType='dockerish',
                 engine=self,
                 )
-        reactor.callLater(0, self._callHandlers, 'dockerish.init', startEvent)
-        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, time.time())
+        self.callLater(0, self._callHandlers, 'dockerish.init', startEvent)
+        self.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, time.time())
 
     def _callHandlers(self, eventName, event):
+        """
+        Fire all handlers that are listening for this event
+        """
+        for func_name in self.handlers.get(ALL_EVENTS, ()):
+            getattr(self.owner, func_name)(event)
+
         for func_name in self.handlers.get(eventName, ()):
             getattr(self.owner, func_name)(event)
 
@@ -234,10 +242,9 @@ class DockerEngine(object):
                 until=until):
             ev = Event.fromLowLevelEvent(self, llEvent)
 
-            self._callHandlers(ALL_EVENTS, ev)
             self._callHandlers(ev.name, ev)
 
-        reactor.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, until)
+        self.callLater(PEEK_INTERVAL_SECONDS, self._genEvents, until)
 
     def handler(self, eventName):
         """

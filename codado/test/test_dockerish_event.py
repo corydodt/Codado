@@ -1,9 +1,13 @@
 """
 Tests of the dockerish event bus
 """
+import time
+
 from pytest import fixture, mark
 
-from mock import MagicMock
+from mock import MagicMock, patch
+
+from twisted.internet import task
 
 import docker
 
@@ -287,3 +291,72 @@ def test_daemonEvent(dockerClientLowLevel, daemonEventLowLevel):
     assert ev.daemon is eng.client
     assert ev.name == 'daemon.reload'
 
+
+def test_dockerEngineDescriptor():
+    """
+    Do I bind to a class I'm an attribute of?
+    """
+    eng = event.DockerEngine()
+    class EventConsumerApp(object):
+        engine = eng
+
+    # prior to instantion, owner is left unset
+    assert EventConsumerApp.engine is eng
+    assert not hasattr(eng, 'owner')
+
+    app = EventConsumerApp()
+    assert app.engine is eng
+    # now owner is set
+    assert eng.owner is app
+
+
+def test_dockerEngineBindEvent(
+        containerEventDestroyLowLevel,
+        networkEventDestroyLowLevel):
+    """
+    Do I run methods when an event appears?
+    """
+    eng = event.DockerEngine()
+    clock = task.Clock()
+    eng.callLater = clock.callLater
+    calls = []
+    class EventConsumerApp(object):
+        engine = eng
+
+        @engine.handler("container.destroy")
+        @engine.handler("network.destroy")
+        def onDestroy(self, event):
+            calls.append(('onDestroy', event.name, event.id))
+
+        @engine.handler("dockerish.init")
+        def onInit(self, event):
+            calls.append(('onInit', event.name, event.id))
+
+        @engine.defaultHandler
+        def onAnyEvent(self, event):
+            calls.append(('onAnyEvent', event.name, event.id))
+
+    app = EventConsumerApp()
+
+    now = time.time()
+
+    app.engine.run()
+    pClientEvents = patch.object(eng.client, 'events', autospec=True, 
+        side_effect = [
+            [containerEventDestroyLowLevel], # advance 1
+            [networkEventDestroyLowLevel], # advance 2
+            ]
+        )
+    with pClientEvents:
+        clock.advance(now + 1)
+        assert calls == [
+                ('onAnyEvent', 'dockerish.init', None),
+                ('onInit', 'dockerish.init', None),
+                ('onAnyEvent', 'container.destroy', 'deadbeef'),
+                ('onDestroy', 'container.destroy', 'deadbeef'),
+                ]
+        clock.advance(now + 2)
+        assert calls[4:] == [
+                ('onAnyEvent', 'network.destroy', None),
+                ('onDestroy', 'network.destroy', None),
+                ]
