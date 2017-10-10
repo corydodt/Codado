@@ -5,11 +5,11 @@ This assumes using codado.kleinish.tree.enter() decorator
 """
 import re
 
+import yaml
+
 import attr
 
 from twisted.python.reflect import namedAny
-
-import yaml
 
 from codado.py import doc
 from codado.tx import Main
@@ -45,12 +45,15 @@ class Options(Main):
     def postOptions(self):
         rootCls = namedAny(self['classQname'])
         rules = list(self._iterClass(rootCls))
+        arr = []
         for item in sorted(rules):
             if item.subKlein:
                 continue
 
             if re.search(self['filt'], item.rulePath):
-                print yaml.dump({item.rulePath: item})
+                arr.append(item.toOpenAPIData())
+
+        print yaml.dump_all(arr, default_flow_style=False)
 
 
 @attr.s
@@ -60,29 +63,29 @@ class OpenAPIRule(object):
     """
     rulePath = attr.ib()
     endpoint = attr.ib()
+    summary = attr.ib(default='')
+    description = attr.ib(default='')
     branch = attr.ib(default=False)
     methods = attr.ib(default=attr.Factory(list))
     subKlein = attr.ib(default=None)
 
-    @staticmethod
-    def asYAML(dumper, data):
+    def toOpenAPIData(self):
         """
-        YAML representer
+        Produce a data structure compatible with OpenAPI
         """
-        dct = {data.rulePath: {}}
-        methods = data.methods[:] or ['*']
+        dct = {self.rulePath: {}}
+        methods = self.methods[:] or ['*']
         for meth in methods:
             if meth.lower() in ['head']:
                 continue
-            dct[data.rulePath].setdefault(meth.lower(), dict(
-                summary='',
-                description=doc(data.endpoint),
+            dct[self.rulePath].setdefault(meth.lower(), dict(
+                description=self.description,
+                summary=self.summary,
                 responses=[],
                 requestBody={},
             ))
 
-        dct = decruftDict(dct)
-        return dumper.represent_dict(dct)
+        return decruftDict(dct)
 
 
 def decruftDict(dct, matcher=lambda node: not not node):
@@ -99,9 +102,6 @@ def decruftDict(dct, matcher=lambda node: not not node):
             ret[k] = v
 
     return ret
-
-
-yaml.add_representer(OpenAPIRule, OpenAPIRule.asYAML)
 
 
 def dumpRule(serviceCls, rule, prefix):
@@ -137,5 +137,8 @@ def dumpRule(serviceCls, rule, prefix):
 
     if hasattr(meth, '_subKleinQname'):
         oar.subKlein = meth._subKleinQname
+
+    oar.description = doc(meth, full=True)
+    oar.summary = oar.description.split('\n')[0]
 
     return oar

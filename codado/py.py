@@ -2,16 +2,28 @@
 Missing batteries from Python
 """
 import inspect
-import types
 import os
+import re
+import types
 
 
-def doc(cls):
+def doc(cls, full=False):
     """
     Pull off the first line of documentation from a class
+
+    With full=True, dump the entire doc instead of the first line
     """
+    if cls.__doc__ is None:
+        return ''
+
     cdoc = inspect.cleandoc(cls.__doc__)
-    return cdoc.split('\n')[0]
+    if full:
+        out = re.sub(r'\n\n', '\v', cdoc)
+        out = out.replace('\n', ' ').replace('\v', '\n\n')
+    else:
+        out = cdoc.split('\n')[0]
+
+    return out
 
 
 def eachMethod(decorator, methodFilter=lambda fName: True):
