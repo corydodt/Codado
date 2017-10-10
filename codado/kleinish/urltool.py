@@ -11,6 +11,7 @@ from twisted.python.reflect import namedAny
 
 import yaml
 
+from codado.py import doc
 from codado.tx import Main
 
 
@@ -31,26 +32,29 @@ class Options(Main):
         iterableRules = [(prefix, cls, cls.app.url_map.iter_rules())]
         for prefix, currentClass, i in iter(iterableRules):
             for rule in i:
-                utr = dumpRule(currentClass, rule, prefix)
-                if utr.branch:
+                oar = dumpRule(currentClass, rule, prefix)
+                if oar.branch:
                     continue
 
-                if utr.subKlein:
-                    clsDown = namedAny(utr.subKlein)
-                    iterableRules.append((utr.rulePath, clsDown, clsDown.app.url_map.iter_rules()))
+                if oar.subKlein:
+                    clsDown = namedAny(oar.subKlein)
+                    iterableRules.append((oar.rulePath, clsDown, clsDown.app.url_map.iter_rules()))
 
-                yield utr
+                yield oar
 
     def postOptions(self):
         rootCls = namedAny(self['classQname'])
         rules = list(self._iterClass(rootCls))
         for item in sorted(rules):
+            if item.subKlein:
+                continue
+
             if re.search(self['filt'], item.rulePath):
                 print yaml.dump({item.rulePath: item})
 
 
 @attr.s
-class URLToolRule(object):
+class OpenAPIRule(object):
     """
     An atom of structured information about one route
     """
@@ -61,62 +65,77 @@ class URLToolRule(object):
     subKlein = attr.ib(default=None)
 
     @staticmethod
-    def filterDump(atr, val):
-        """
-        Clean up the dict representation for yaml output
-        """
-        if not val:
-            return False
-        if atr.name == 'rulePath':
-            return False
-        return True
-
-    @staticmethod
     def asYAML(dumper, data):
         """
-        YAML representer, using filterDump to prune the dict
+        YAML representer
         """
-        dictSelf = attr.asdict(data, filter=URLToolRule.filterDump)
-        return dumper.represent_dict(dictSelf)
+        dct = {data.rulePath: {}}
+        methods = data.methods[:] or ['*']
+        for meth in methods:
+            if meth.lower() in ['head']:
+                continue
+            dct[data.rulePath].setdefault(meth.lower(), dict(
+                summary='',
+                description=doc(data.endpoint),
+                responses=[],
+                requestBody={},
+            ))
+
+        dct = decruftDict(dct)
+        return dumper.represent_dict(dct)
 
 
-yaml.add_representer(URLToolRule, URLToolRule.asYAML)
+def decruftDict(dct, matcher=lambda node: not not node):
+    """
+    Remove any key from a dict if its value is a false-value (by default)
+    or any function you want to provide to matcher. Function should return False to skip a key.
+    """
+    ret = {}
+    for k, v in dct.items():
+        if isinstance(v, dict):
+            v = decruftDict(v)
+
+        if matcher(v):
+            ret[k] = v
+
+    return ret
+
+
+yaml.add_representer(OpenAPIRule, OpenAPIRule.asYAML)
 
 
 def dumpRule(serviceCls, rule, prefix):
     """
-    Create a dict representation of the rule
+    Create an OpenAPI 3.0 representation of the rule
     """
     rulePath = prefix + rule.rule
     rulePath = re.sub('/{2,}', '/', rulePath)
 
-    utr = URLToolRule(
+    oar = OpenAPIRule(
             rulePath=rulePath,
             endpoint=rule.endpoint
             )
 
-    # look for methods other than GET and HEAD, and note them
+    # look for methods
     for meth in rule.methods or []:
-        if meth not in ['HEAD', 'GET']:
-            utr.methods.append(meth)
+        oar.methods.append(meth)
 
     # edit _branch endpoints to provide the true method name
-    origEP = utr.endpoint
+    origEP = oar.endpoint
     if origEP.endswith('_branch'):
         origEP = origEP[:-7]
-        utr.branch = True
-    utr.endpoint = '%s.%s' % (serviceCls.__name__, origEP)
+        oar.branch = True
+    oar.endpoint = '%s.%s' % (serviceCls.__name__, origEP)
     # get the actual method so we can inspect it for extension attributes
     meth = getattr(serviceCls, origEP)
 
     ## if hasattr(meth, "_roles"):
-    ##     utr.roles = meth._roles
+    ##     oar.roles = meth._roles
 
     ## if hasattr(meth, '_json'):
-    ##     utr.json = meth._json
+    ##     oar.json = meth._json
 
     if hasattr(meth, '_subKleinQname'):
-        utr.subKlein = meth._subKleinQname
+        oar.subKlein = meth._subKleinQname
 
-    return utr
-
+    return oar

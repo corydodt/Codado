@@ -6,6 +6,14 @@ import types
 import os
 
 
+def doc(cls):
+    """
+    Pull off the first line of documentation from a class
+    """
+    cdoc = inspect.cleandoc(cls.__doc__)
+    return cdoc.split('\n')[0]
+
+
 def eachMethod(decorator, methodFilter=lambda fName: True):
     """
     Class decorator that wraps every single method in its own method decorator

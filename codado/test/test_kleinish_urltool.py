@@ -18,7 +18,7 @@ def test_dumpRule():
     """
     rule = Rule('/end/', endpoint='end')
     utr = urltool.dumpRule(SubApp, rule, '/sub')
-    expect = urltool.URLToolRule(
+    expect = urltool.OpenAPIRule(
             endpoint='SubApp.end',
             rulePath='/sub/end/',
             )
@@ -26,7 +26,7 @@ def test_dumpRule():
 
     rule2 = Rule('/sub/', endpoint='subTree_branch')
     utr2 = urltool.dumpRule(TopApp, rule2, '')
-    expect2 = urltool.URLToolRule(
+    expect2 = urltool.OpenAPIRule(
             endpoint='TopApp.subTree',
             rulePath='/sub/',
             branch=True,
@@ -57,9 +57,8 @@ def test_postOptions(options, capsys):
     options.parseArgs('codado.test.conftest.TopApp')
     options.postOptions()
     assert capsys.readouterr()[0].strip() == cleandoc("""
-        /sub/: {endpoint: TopApp.subTree, subKlein: codado.test.conftest.SubApp}
-
         /sub/end:
-          endpoint: SubApp.end
-          methods: [POST]
+          post:
+            description: wtf
+            summary: idk
         """)
