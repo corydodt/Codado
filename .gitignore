@@ -65,3 +65,5 @@ target/
 
 # created by tox
 /Library
+
+/.vscode
