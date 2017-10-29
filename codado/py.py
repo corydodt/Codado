@@ -182,14 +182,3 @@ def remoji():
     in non-western culture. Suggestions and updates to this list 100% welcome.
     """
     return random.choice(EMOJI)
-
-
-def test_remoji():
-    """
-    Does it get a stringy, emoji-y string randomly?
-    """
-    for n in range(100):
-        choice = remoji() + remoji()
-        assert isinstance(choice, unicode)
-        assert len(choice) == 2
-        assert choice[1] in EMOJI
