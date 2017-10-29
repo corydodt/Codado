@@ -1,10 +1,15 @@
+# coding=utf-8
 """
 Missing batteries from Python
 """
+import random
 import inspect
 import os
 import re
 import types
+
+
+EMOJI = u'👻👾🤖😼💫👒🎩🐶🦎🐚🌸🌲🍋🥝🥑🥐🍿🥄⛺🚂🚲🌈🏆🎵💡✏🖍📌🛡♻'
 
 
 def doc(cls, full=False):
@@ -163,3 +168,28 @@ class fromdir(object):
         os.chdir(self._origDir)
 
 
+def remoji():
+    """
+    Return a random, neutral emoji
+
+    This list has been chosen to consist of emoji that have positive or neutral
+    connotations, and which do not reflect any sort of identity symbols (e.g. no
+    pictures of human beings). I have also tried to avoid symbols that have
+    acquired punny or tasteless meanings, such as the eggplant emoji.
+
+    I recognize that this list currently reflects my western bias. I am not confident
+    that I can choose positive/neutral symbols from among the symbols that originate
+    in non-western culture. Suggestions and updates to this list 100% welcome.
+    """
+    return random.choice(EMOJI)
+
+
+def test_remoji():
+    """
+    Does it get a stringy, emoji-y string randomly?
+    """
+    for n in range(100):
+        choice = remoji() + remoji()
+        assert isinstance(choice, unicode)
+        assert len(choice) == 2
+        assert choice[1] in EMOJI
