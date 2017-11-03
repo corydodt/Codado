@@ -130,3 +130,13 @@ class TestPy(TestCase):
 
         self.assertEqual(tt.t_cm('abc'), ['deco', 't_cmTabc'])
         self.assertEqual(T.t_cm('abc'), ['deco', 't_cmTabc'])
+
+    def test_remoji(self):
+        """
+        Does it get a stringy, emoji-y string randomly?
+        """
+        for n in range(100):
+            choice = py.remoji() + py.remoji()
+            assert isinstance(choice, unicode)
+            assert len(choice) == 2
+            assert choice[1] in py.EMOJI

@@ -22,3 +22,7 @@ $ tox
 - urltool: A command-line tool that dumps klein routes from a project, when
   the project is using kleinish.tree
 
+## Change Log
+
+* 0.4.991: Preparing for 0.5, adding remoji
+* 0.4: Initial public usable release
