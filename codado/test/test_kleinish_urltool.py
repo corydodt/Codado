@@ -21,6 +21,8 @@ def test_dumpRule():
     expect = urltool.OpenAPIRule(
             endpoint='SubApp.end',
             rulePath='/sub/end/',
+            summary='This is an endpoint',
+            description='This is an endpoint\n\nIt takes nothing and returns hi'
             )
     assert utr == expect
 
@@ -59,6 +61,9 @@ def test_postOptions(options, capsys):
     assert capsys.readouterr()[0].strip() == cleandoc("""
         /sub/end:
           post:
-            description: wtf
-            summary: idk
+            description: |-
+              This is an endpoint
+
+              It takes nothing and returns hi
+            summary: This is an endpoint
         """)

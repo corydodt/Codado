@@ -63,7 +63,7 @@ class OpenAPIRule(object):
     """
     rulePath = attr.ib()
     endpoint = attr.ib()
-    summary = attr.ib(default='')
+    summary = attr.ib(default='undocumented')
     description = attr.ib(default='')
     branch = attr.ib(default=False)
     methods = attr.ib(default=attr.Factory(list))
@@ -138,7 +138,21 @@ def dumpRule(serviceCls, rule, prefix):
     if hasattr(meth, '_subKleinQname'):
         oar.subKlein = meth._subKleinQname
 
-    oar.description = doc(meth, full=True)
-    oar.summary = oar.description.split('\n')[0]
-
+    _doc = doc(meth, full=True, decode=True).encode('utf-8')
+    if _doc:
+        oar.description = _doc
+        oar.summary = oar.description.split('\n')[0]
     return oar
+
+
+def literal_unicode_representer(dumper, data):
+    """
+    Use |- literal syntax for long strings
+    """
+    if '\n' in data:
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
+    else:
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data)
+
+yaml.add_representer(unicode, literal_unicode_representer)
+yaml.add_representer(str, literal_unicode_representer)

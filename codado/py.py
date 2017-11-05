@@ -8,19 +8,24 @@ import os
 import re
 import types
 
+import ftfy
+
 
 EMOJI = u'👻👾🤖😼💫👒🎩🐶🦎🐚🌸🌲🍋🥝🥑🥐🍿🥄⛺🚂🚲🌈🏆🎵💡✏🖍📌🛡♻'
 
 
-def doc(cls, full=False):
+def doc(cls, full=False, decode=None):
     """
     Pull off the first line of documentation from a class
 
-    With full=True, dump the entire doc instead of the first line
+    With `full=True`, dump the entire doc instead of the first line
+    With `decode=True`, decode docstrings as utf-8, then run them through ftfy, and return unicode.
     """
     if cls.__doc__ is None:
-        return ''
+        return u'' if decode else ''
 
+    # conveniently, all these calls return unicode if they're passed in unicode, so we
+    # won't mangle unicode docstrings at this point.
     cdoc = inspect.cleandoc(cls.__doc__)
     if full:
         out = re.sub(r'\n\n', '\v', cdoc)
@@ -28,7 +33,10 @@ def doc(cls, full=False):
     else:
         out = cdoc.split('\n')[0]
 
-    return out
+    if not decode or isinstance(out, unicode):
+        return out
+    else:
+        return ftfy.fix_encoding(out.decode('utf-8'))
 
 
 def eachMethod(decorator, methodFilter=lambda fName: True):
@@ -73,7 +81,7 @@ class enum(dict):
             dd.append((k, k))
         ret.update(dict(dd))
         return ret
- 
+
     def __getattr__(self, attr):
         try:
             return self[attr]
@@ -111,7 +119,7 @@ class fromdir(object):
 
     >>> with fromdir('codado') as fromcodado:
     ...     print os.listdir('.')
-    ... 
+    ...
     ['__init__.py', 'py.py', ..., 'py.pyc']
 
 
