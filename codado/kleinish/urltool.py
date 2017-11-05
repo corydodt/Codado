@@ -3,6 +3,7 @@ URLtool - tool for documenting http API and building API clients
 
 This assumes using codado.kleinish.tree.enter() decorator
 """
+from collections import OrderedDict
 import re
 
 import yaml
@@ -53,7 +54,14 @@ class Options(Main):
             if re.search(self['filt'], item.rulePath):
                 arr.append(item.toOpenAPIData())
 
-        print yaml.dump_all(arr, default_flow_style=False)
+        openapi3 = UnsortableOrderedDict(openapi="3.0.0")
+        openapi3['info'] = UnsortableOrderedDict()
+        openapi3['info']['title'] = 'FIXME'
+        openapi3['info']['version'] = 'FIXME'
+        paths = openapi3['paths'] = {}
+        for path in arr:
+            paths.update(path)
+        print yaml.dump(openapi3, default_flow_style=False)
 
 
 @attr.s
@@ -78,12 +86,12 @@ class OpenAPIRule(object):
         for meth in methods:
             if meth.lower() in ['head']:
                 continue
-            dct[self.rulePath].setdefault(meth.lower(), dict(
-                description=self.description,
-                summary=self.summary,
-                responses=[],
-                requestBody={},
-            ))
+            operationObject = UnsortableOrderedDict()
+            operationObject['summary'] = self.summary
+            operationObject['description'] = self.description
+            operationObject['responses'] = []
+            operationObject['requestBody'] = {}
+            dct[self.rulePath].setdefault(meth.lower(), operationObject)
 
         return decruftDict(dct)
 
@@ -93,7 +101,10 @@ def decruftDict(dct, matcher=lambda node: not not node):
     Remove any key from a dict if its value is a false-value (by default)
     or any function you want to provide to matcher. Function should return False to skip a key.
     """
-    ret = {}
+    # instantiate the same type of dict we were passed, e.g. UnsortableOrdereDict if necessary,
+    # or vanilla dict if desired
+    ret = type(dct)()
+
     for k, v in dct.items():
         if isinstance(v, dict):
             v = decruftDict(v)
@@ -154,5 +165,25 @@ def literal_unicode_representer(dumper, data):
     else:
         return dumper.represent_scalar(u'tag:yaml.org,2002:str', data)
 
+
 yaml.add_representer(unicode, literal_unicode_representer)
 yaml.add_representer(str, literal_unicode_representer)
+
+
+class UnsortableList(list):
+    """
+    List that no-ops sort(), so yaml will get unsorted items
+    """
+    def sort(self, *args, **kwargs):
+        pass
+
+
+class UnsortableOrderedDict(OrderedDict):
+    """
+    Glue class to allow yaml to dump an OrderedDict
+    """
+    def items(self, *args, **kwargs):
+        return UnsortableList(OrderedDict.items(self, *args, **kwargs))
+
+
+yaml.add_representer(UnsortableOrderedDict, yaml.representer.SafeRepresenter.represent_dict)

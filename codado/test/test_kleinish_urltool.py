@@ -59,11 +59,16 @@ def test_postOptions(options, capsys):
     options.parseArgs('codado.test.conftest.TopApp')
     options.postOptions()
     assert capsys.readouterr()[0].strip() == cleandoc("""
-        /sub/end:
-          post:
-            description: |-
-              This is an endpoint
+        openapi: 3.0.0
+        info:
+          title: FIXME
+          version: FIXME
+        paths:
+          /sub/end:
+            post:
+              summary: This is an endpoint
+              description: |-
+                This is an endpoint
 
-              It takes nothing and returns hi
-            summary: This is an endpoint
+                It takes nothing and returns hi
         """)
