@@ -24,6 +24,10 @@ class SubApp(object):
         """
         This is an endpoint
 
-        It takes nothing and returns hi
+        It takes nothing and returns "ended"
         """
-        return 'hi'
+        return 'ended'
+
+    @app.route('/end', methods=['GET'])
+    def getEnd(self, request): # pragma: nocover
+        return 'status: unending'

@@ -18,18 +18,18 @@ def test_dumpRule():
     """
     rule = Rule('/end/', endpoint='end')
     utr = urltool.dumpRule(SubApp, rule, '/sub')
-    expect = urltool.OpenAPIRule(
-            endpoint='SubApp.end',
+    expect = urltool.ConvertedRule(
+            operationId='SubApp.end',
             rulePath='/sub/end/',
             summary='This is an endpoint',
-            description='This is an endpoint\n\nIt takes nothing and returns hi'
+            description='This is an endpoint\n\nIt takes nothing and returns "ended"'
             )
     assert utr == expect
 
     rule2 = Rule('/sub/', endpoint='subTree_branch')
     utr2 = urltool.dumpRule(TopApp, rule2, '')
-    expect2 = urltool.OpenAPIRule(
-            endpoint='TopApp.subTree',
+    expect2 = urltool.ConvertedRule(
+            operationId='TopApp.subTree',
             rulePath='/sub/',
             branch=True,
             subKlein='codado.test.conftest.SubApp',
@@ -61,8 +61,8 @@ def test_postOptions(options, capsys):
     assert capsys.readouterr()[0].strip() == cleandoc("""
         openapi: 3.0.0
         info:
-          title: FIXME
-          version: FIXME
+          title: TODO
+          version: TODO
         paths:
           /sub/end:
             post:
@@ -70,5 +70,9 @@ def test_postOptions(options, capsys):
               description: |-
                 This is an endpoint
 
-                It takes nothing and returns hi
+                It takes nothing and returns "ended"
+              operationId: SubApp.end
+            get:
+              summary: undocumented
+              operationId: SubApp.getEnd
         """)
