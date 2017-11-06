@@ -32,5 +32,7 @@ $ twine upload dist/*
 
 ## Change Log
 
-* 0.4.993: Preparing for 0.5, adding remoji
+* 0.4.993: Preparing for 0.5, adding:
+  - remoji
+  - urltool now outputs OpenAPI 3.0-spec docs by inspecting your app
 * 0.4: Initial public usable release
