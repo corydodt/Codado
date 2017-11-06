@@ -3,7 +3,6 @@ URLtool - tool for documenting http API and building API clients
 
 This assumes using codado.kleinish.tree.enter() decorator
 """
-from collections import OrderedDict
 import re
 
 import yaml
@@ -12,8 +11,9 @@ import attr
 
 from twisted.python.reflect import namedAny
 
-from codado.py import doc
+from codado.py import Documentation
 from codado.tx import Main
+from codado.kleinish import openapi
 
 
 class Options(Main):
@@ -54,147 +54,13 @@ class Options(Main):
             if re.search(self['filt'], item.rulePath):
                 arr.append(tuple(item.toOpenAPIPath()))
 
-        openapi3 = OpenAPI()
+        openapi3 = openapi.OpenAPI()
         for pathPath, pathItem in arr:
             if pathPath in openapi3.paths:
                 openapi3.paths[pathPath].merge(pathItem)
             else:
                 openapi3.paths[pathPath] = pathItem
         print yaml.dump(openapi3, default_flow_style=False)
-
-
-class UnsortableList(list):
-    """
-    List that no-ops sort(), so yaml will get unsorted items
-    """
-    def sort(self, *args, **kwargs):
-        """
-        Do not sort
-        """
-
-
-class UnsortableOrderedDict(OrderedDict):
-    """
-    Glue class to allow yaml to dump an OrderedDict
-    """
-    def items(self, *args, **kwargs):
-        return UnsortableList(OrderedDict.items(self, *args, **kwargs))
-
-
-SHALLOW = {'shallow': True}
-
-
-@attr.s
-class OpenAPIOperation(object):
-    """
-    One operation (method) in an OpenAPIPathItem
-    """
-    tags = attr.ib(default=attr.Factory(list))
-    summary = attr.ib(default="undocumented")
-    description = attr.ib(default="undocumented")
-    externalDocs = attr.ib(default=None)
-    operationId = attr.ib(default=None)
-    responses = attr.ib(default=attr.Factory(UnsortableOrderedDict), metadata=SHALLOW)
-    parameters = attr.ib(default=attr.Factory(list), metadata=SHALLOW)
-    requestBody = attr.ib(default=attr.Factory(UnsortableOrderedDict), metadata=SHALLOW)
-    callbacks = attr.ib(default=attr.Factory(UnsortableOrderedDict), metadata=SHALLOW)
-    deprecated = attr.ib(default=False)
-    security = attr.ib(default=None)
-    servers = attr.ib(default=attr.Factory(list), metadata=SHALLOW)
-
-
-@attr.s
-class OpenAPIPathItem(object):
-    """
-    One path in the .paths attribute of an openapi 3 spec
-    """
-    summary = attr.ib(default="")
-    description = attr.ib(default="")
-    servers = attr.ib(default=attr.Factory(list), metadata=SHALLOW)
-    parameters = attr.ib(default=attr.Factory(list), metadata=SHALLOW)
-    _operations = attr.ib(default=attr.Factory(UnsortableOrderedDict), metadata=SHALLOW)
-
-    def merge(self, other):
-        """
-        Gather operations from other and merge them into my operations.
-        """
-        for key, value in other._operations.items():
-            self.addOperation(key, value)
-
-    def addOperation(self, key, operation):
-        """
-        Insert one operation to this pathItem
-
-        Raises an exception if an operation object being merged is already in this path item.
-        """
-        assert key not in self._operations.keys(), "Non-unique operation %r in %r" % (key, self)
-        self._operations[key] = operation
-
-
-@attr.s
-class OpenAPIInfo(object):
-    """
-    The .info attribute of an openapi 3 spec
-    """
-    title = attr.ib(default="TODO")
-    description = attr.ib(default="")
-    termsOfService = attr.ib(default="")
-    contact = attr.ib(default=None)
-    license = attr.ib(default=None)
-    version = attr.ib(default="TODO")
-
-
-@attr.s
-class OpenAPI(object):
-    """
-    The root openapi spec document
-    """
-    openapi = attr.ib(default="3.0.0")
-    info = attr.ib(default=attr.Factory(OpenAPIInfo), metadata=SHALLOW)
-    paths = attr.ib(default=attr.Factory(UnsortableOrderedDict), metadata=SHALLOW)
-
-
-def _orderedCleanDict(attrsObj):
-    """
-    -> dict with false-values removed
-    
-    Also evaluates attr-instances for false-ness by looking at the values of their properties
-    """
-    def _filt(k, v):
-        if attr.has(v):
-            return not not any(attr.astuple(v))
-        return not not v
-
-    return attr.asdict(attrsObj,
-        dict_factory=UnsortableOrderedDict,
-        recurse=False,
-        filter=_filt)
-
-
-def representCleanOpenAPIPathItem(dumper, data):
-    """
-    Unpack operation key/values before representing an OpenAPIPathItem
-    """
-    dct = _orderedCleanDict(data)
-    dct.update({k: op for (k, op) in data._operations.items()})
-    del dct['_operations']
-
-    return dumper.represent_dict(dct)
-
-
-def representCleanOpenAPIObjects(dumper, data):
-    """
-    Produce a representation of an OpenAPI object, removing empty attributes
-    """
-    dct = _orderedCleanDict(data)
-
-    return dumper.represent_dict(dct)
-
-
-yaml.add_representer(OpenAPIPathItem, representCleanOpenAPIPathItem)
-yaml.add_representer(OpenAPI, representCleanOpenAPIObjects)
-yaml.add_representer(OpenAPIInfo, representCleanOpenAPIObjects)
-yaml.add_representer(OpenAPIOperation, representCleanOpenAPIObjects)
 
 
 @attr.s
@@ -204,8 +70,7 @@ class ConvertedRule(object):
     """
     rulePath = attr.ib()
     operationId = attr.ib()
-    summary = attr.ib(default='undocumented')
-    description = attr.ib(default='')
+    doco = attr.ib(default=None)
     branch = attr.ib(default=False)
     methods = attr.ib(default=attr.Factory(list))
     subKlein = attr.ib(default=None)
@@ -216,18 +81,61 @@ class ConvertedRule(object):
 
         @returns tuple of (path, pathItem)
         """
-        pathItem = OpenAPIPathItem()
+        pathItem = openapi.OpenAPIPathItem()
         methods = self.methods[:] or ['x-any-method']
         for meth in methods:
             if meth.lower() in ['head']:
                 continue
-            operation = OpenAPIOperation()
+            operation = openapi.OpenAPIOperation()
             operation.operationId = self.operationId
-            operation.summary = self.summary
-            operation.description = self.description
+            self._parseRawDoc(operation)
             pathItem.addOperation(meth.lower(), operation)
 
         return self.rulePath, pathItem
+
+    def _parseRawDoc(self, operation):
+        """
+        Set doc fields of this operation by using the Documentation object
+
+        - If the Documentation object has a .yamlData property, we update values
+          of the operation properties from them. Unrecognized properties will
+          be added with the 'x-' prefix.
+        - Documentation.full is the description
+        - Documentation.first is the summary
+        """
+        operation.summary = self.doco.first
+        operation.description = self.doco.full
+        if self.doco.yamlData:
+            fieldNames = [f.name for f in attr.fields(operation.__class__)]
+            for k in self.doco.yamlData:
+                if k in fieldNames:
+                    setattr(operation, k, self.doco.yamlData[k])
+                else:
+                    operation._extended['x-' + k] = self.doco.yamlData[k]
+
+
+@attr.s
+class OpenAPIExtendedDocumentation(Documentation):
+    """
+    A `Documentation` that recognizes and parses yaml inclusions
+
+    If the string contains '---', anything below it is treated as yaml properties
+    """
+    yamlData = attr.ib(default=None)
+
+    @classmethod
+    def fromObject(cls, obj, decode=None):
+        orig = Documentation.fromObject(obj, decode)
+        self = cls(orig.raw)
+        lines = self.raw.splitlines()
+        if '---' in lines:
+            n = lines.index('---')
+            this, that = '\n'.join(lines[:n]), '\n'.join(lines[n+1:])
+            self.yamlData = yaml.load(that)
+        else:
+            this = '\n'.join(lines)
+        self.raw = this
+        return self
 
 
 def dumpRule(serviceCls, rule, prefix):
@@ -255,19 +163,10 @@ def dumpRule(serviceCls, rule, prefix):
     # get the actual method so we can inspect it for extension attributes
     meth = getattr(serviceCls, origEP)
 
-    ## if hasattr(meth, "_roles"):
-    ##     cor.roles = meth._roles
-
-    ## if hasattr(meth, '_json'):
-    ##     cor.json = meth._json
-
     if hasattr(meth, '_subKleinQname'):
         cor.subKlein = meth._subKleinQname
 
-    _doc = doc(meth, full=True, decode=True).encode('utf-8')
-    if _doc:
-        cor.description = _doc
-        cor.summary = cor.description.split('\n')[0]
+    cor.doco = OpenAPIExtendedDocumentation.fromObject(meth, decode=True)
     return cor
 
 
@@ -279,8 +178,3 @@ def literal_unicode_representer(dumper, data):
         return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
     else:
         return dumper.represent_scalar(u'tag:yaml.org,2002:str', data)
-
-
-yaml.add_representer(unicode, literal_unicode_representer)
-yaml.add_representer(str, literal_unicode_representer)
-yaml.add_representer(UnsortableOrderedDict, yaml.representer.SafeRepresenter.represent_dict)

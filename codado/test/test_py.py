@@ -10,7 +10,7 @@ from pytest import raises
 from codado import py
 
 
-def test_doc():
+def test_documentation():
     """
     Do I find the doc on an object?
 
@@ -36,11 +36,12 @@ def test_doc():
         """
 
     assert py.doc(Cls) == "I have a bytestr docstring"
-    assert py.doc(Cls, full=True) == "I have a bytestr docstring\n\nIt is 2 lines"
-    assert isinstance(py.doc(Unicls), unicode)
-    strDocstring = py.doc(StrClsWithUTF8, decode=True)
-    assert strDocstring == u'I have a 😼💫 docstring'
-    assert isinstance(strDocstring, unicode)
+
+    assert py.Documentation.fromObject(Cls).full == "I have a bytestr docstring\n\nIt is 2 lines"
+    assert isinstance(py.Documentation.fromObject(Unicls).first, unicode)
+    strDoc = py.Documentation.fromObject(StrClsWithUTF8, decode=True)
+    assert strDoc.first == u'I have a 😼💫 docstring'
+    assert isinstance(strDoc.first, unicode)
 
 
 def test_fromdir():

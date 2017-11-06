@@ -30,4 +30,12 @@ class SubApp(object):
 
     @app.route('/end', methods=['GET'])
     def getEnd(self, request): # pragma: nocover
+        """
+        What is the end?
+
+        This is the end.
+        ---
+        tags: [a, z]
+        fish: [red, blue]
+        """
         return 'status: unending'

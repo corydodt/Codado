@@ -4,6 +4,8 @@ Tests of the urltool command-line program
 import re
 from inspect import cleandoc
 
+import yaml
+
 from pytest import fixture
 
 from werkzeug.routing import Rule
@@ -17,20 +19,20 @@ def test_dumpRule():
     Do I produce the correct data structure for a rule?
     """
     rule = Rule('/end/', endpoint='end')
-    utr = urltool.dumpRule(SubApp, rule, '/sub')
+    cor = urltool.dumpRule(SubApp, rule, '/sub')
     expect = urltool.ConvertedRule(
             operationId='SubApp.end',
             rulePath='/sub/end/',
-            summary='This is an endpoint',
-            description='This is an endpoint\n\nIt takes nothing and returns "ended"'
+            doco=urltool.OpenAPIExtendedDocumentation('This is an endpoint\n\nIt takes nothing and returns "ended"')
             )
-    assert utr == expect
+    assert cor == expect
 
     rule2 = Rule('/sub/', endpoint='subTree_branch')
     utr2 = urltool.dumpRule(TopApp, rule2, '')
     expect2 = urltool.ConvertedRule(
             operationId='TopApp.subTree',
             rulePath='/sub/',
+            doco=urltool.OpenAPIExtendedDocumentation(''),
             branch=True,
             subKlein='codado.test.conftest.SubApp',
             )
@@ -73,6 +75,24 @@ def test_postOptions(options, capsys):
                 It takes nothing and returns "ended"
               operationId: SubApp.end
             get:
-              summary: undocumented
+              tags:
+              - a
+              - z
+              summary: What is the end?
+              description: |-
+                What is the end?
+
+                This is the end.
               operationId: SubApp.getEnd
+              x-fish:
+              - red
+              - blue
         """)
+
+
+def test_yamlMultilineString():
+    """
+    Do I properly represent strings using multiline syntax
+    """
+    obj = {'thing': 'a\nb'}
+    assert yaml.dump(obj, default_flow_style=False) == 'thing: |-\n  a\n  b\n'

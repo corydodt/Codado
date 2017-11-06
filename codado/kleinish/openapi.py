@@ -1,0 +1,148 @@
+"""
+OpenAPI schema
+
+Includes yaml representation helpers
+"""
+from collections import OrderedDict
+
+import attr
+
+
+class _UnsortableList(list):
+    """
+    List that no-ops sort(), so yaml will get unsorted items
+    """
+    def sort(self, *args, **kwargs):
+        """
+        Do not sort
+        """
+
+
+class UnsortableOrderedDict(OrderedDict):
+    """
+    Glue class to allow yaml to dump an OrderedDict
+    """
+    def items(self, *args, **kwargs):
+        return _UnsortableList(OrderedDict.items(self, *args, **kwargs))
+
+
+@attr.s
+class OpenAPIOperation(object):
+    """
+    One operation (method) in an OpenAPIPathItem
+    """
+    tags = attr.ib(default=attr.Factory(list))
+    summary = attr.ib(default="undocumented")
+    description = attr.ib(default="undocumented")
+    externalDocs = attr.ib(default=None)
+    operationId = attr.ib(default=None)
+    responses = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+    parameters = attr.ib(default=attr.Factory(list))
+    requestBody = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+    callbacks = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+    deprecated = attr.ib(default=False)
+    security = attr.ib(default=None)
+    servers = attr.ib(default=attr.Factory(list))
+    _extended = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+
+
+@attr.s
+class OpenAPIPathItem(object):
+    """
+    One path in the .paths attribute of an openapi 3 spec
+    """
+    summary = attr.ib(default="")
+    description = attr.ib(default="")
+    servers = attr.ib(default=attr.Factory(list))
+    parameters = attr.ib(default=attr.Factory(list))
+    _operations = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+
+    def merge(self, other):
+        """
+        Gather operations from other and merge them into my operations.
+        """
+        for key, value in other._operations.items():
+            self.addOperation(key, value)
+
+    def addOperation(self, key, operation):
+        """
+        Insert one operation to this pathItem
+
+        Raises an exception if an operation object being merged is already in this path item.
+        """
+        assert key not in self._operations.keys(), "Non-unique operation %r in %r" % (key, self)
+        self._operations[key] = operation
+
+
+@attr.s
+class OpenAPIInfo(object):
+    """
+    The .info attribute of an openapi 3 spec
+    """
+    title = attr.ib(default="TODO")
+    description = attr.ib(default="")
+    termsOfService = attr.ib(default="")
+    contact = attr.ib(default=None)
+    license = attr.ib(default=None)
+    version = attr.ib(default="TODO")
+
+
+@attr.s
+class OpenAPI(object):
+    """
+    The root openapi spec document
+    """
+    openapi = attr.ib(default="3.0.0")
+    info = attr.ib(default=attr.Factory(OpenAPIInfo))
+    paths = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+
+
+def _orderedCleanDict(attrsObj):
+    """
+    -> dict with false-values removed
+
+    Also evaluates attr-instances for false-ness by looking at the values of their properties
+    """
+    def _filt(k, v):
+        if attr.has(v):
+            return not not any(attr.astuple(v))
+        return not not v
+
+    return attr.asdict(attrsObj,
+        dict_factory=UnsortableOrderedDict,
+        recurse=False,
+        filter=_filt)
+
+
+def representCleanOpenAPIOperation(dumper, data):
+    """
+    Unpack nonstandard attributes while representing an OpenAPIOperation
+    """
+    dct = _orderedCleanDict(data)
+    if '_extended' in dct:
+        dct.update({k: ext for (k, ext) in data._extended.items()})
+        del dct['_extended']
+
+    return dumper.represent_dict(dct)
+
+
+def representCleanOpenAPIPathItem(dumper, data):
+    """
+    Unpack operation key/values before representing an OpenAPIPathItem
+    """
+    dct = _orderedCleanDict(data)
+    if '_operations' in dct:
+        dct.update({k: op for (k, op) in data._operations.items()})
+        del dct['_operations']
+
+    return dumper.represent_dict(dct)
+
+
+def representCleanOpenAPIObjects(dumper, data):
+    """
+    Produce a representation of an OpenAPI object, removing empty attributes
+    """
+    dct = _orderedCleanDict(data)
+
+    return dumper.represent_dict(dct)
+
