@@ -1,6 +1,11 @@
 from setuptools import setup
 
+from pip.req import parse_requirements
+
 from codado import _version
+
+
+reqs = parse_requirements('requirements.txt')
 
 setup(
   name = 'Codado',
@@ -13,4 +18,5 @@ setup(
   keywords = ['twisted', 'utility'],
   classifiers = [],
   scripts = ['bin/urltool', 'bin/jentemplate'],
+  install_requires=list(reqs)
 )
