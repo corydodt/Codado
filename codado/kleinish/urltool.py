@@ -11,13 +11,14 @@ import attr
 
 from twisted.python.reflect import namedAny
 
-from codado.py import doc
+from codado.py import Documentation
 from codado.tx import Main
+from codado.kleinish import openapi
 
 
 class Options(Main):
     """
-    Dump all urls branching from a class
+    Dump all urls branching from a class as OpenAPI 3 documentation
 
     Apply optional <filter> as a regular expression searching within urls. For
     example, to match all urls beginning with api, you might use '^/api'
@@ -32,15 +33,15 @@ class Options(Main):
         iterableRules = [(prefix, cls, cls.app.url_map.iter_rules())]
         for prefix, currentClass, i in iter(iterableRules):
             for rule in i:
-                oar = dumpRule(currentClass, rule, prefix)
-                if oar.branch:
+                converted = dumpRule(currentClass, rule, prefix)
+                if converted.branch:
                     continue
 
-                if oar.subKlein:
-                    clsDown = namedAny(oar.subKlein)
-                    iterableRules.append((oar.rulePath, clsDown, clsDown.app.url_map.iter_rules()))
+                if converted.subKlein:
+                    clsDown = namedAny(converted.subKlein)
+                    iterableRules.append((converted.rulePath, clsDown, clsDown.app.url_map.iter_rules()))
 
-                yield oar
+                yield converted
 
     def postOptions(self):
         rootCls = namedAny(self['classQname'])
@@ -51,94 +52,129 @@ class Options(Main):
                 continue
 
             if re.search(self['filt'], item.rulePath):
-                arr.append(item.toOpenAPIData())
+                arr.append(tuple(item.toOpenAPIPath()))
 
-        print yaml.dump_all(arr, default_flow_style=False)
+        openapi3 = openapi.OpenAPI()
+        for pathPath, pathItem in arr:
+            if pathPath in openapi3.paths:
+                openapi3.paths[pathPath].merge(pathItem)
+            else:
+                openapi3.paths[pathPath] = pathItem
+        print yaml.dump(openapi3, default_flow_style=False)
 
 
 @attr.s
-class OpenAPIRule(object):
+class ConvertedRule(object):
     """
     An atom of structured information about one route
     """
     rulePath = attr.ib()
-    endpoint = attr.ib()
-    summary = attr.ib(default='')
-    description = attr.ib(default='')
+    operationId = attr.ib()
+    doco = attr.ib(default=None)
     branch = attr.ib(default=False)
     methods = attr.ib(default=attr.Factory(list))
     subKlein = attr.ib(default=None)
 
-    def toOpenAPIData(self):
+    def toOpenAPIPath(self):
         """
         Produce a data structure compatible with OpenAPI
+
+        @returns tuple of (path, pathItem)
         """
-        dct = {self.rulePath: {}}
-        methods = self.methods[:] or ['*']
+        pathItem = openapi.OpenAPIPathItem()
+        methods = self.methods[:] or ['x-any-method']
         for meth in methods:
             if meth.lower() in ['head']:
                 continue
-            dct[self.rulePath].setdefault(meth.lower(), dict(
-                description=self.description,
-                summary=self.summary,
-                responses=[],
-                requestBody={},
-            ))
+            operation = openapi.OpenAPIOperation()
+            operation.operationId = self.operationId
+            self._parseRawDoc(operation)
+            pathItem.addOperation(meth.lower(), operation)
 
-        return decruftDict(dct)
+        return self.rulePath, pathItem
+
+    def _parseRawDoc(self, operation):
+        """
+        Set doc fields of this operation by using the Documentation object
+
+        - If the Documentation object has a .yamlData property, we update values
+          of the operation properties from them. Unrecognized properties will
+          be added with the 'x-' prefix.
+        - Documentation.full is the description
+        - Documentation.first is the summary
+        """
+        operation.summary = self.doco.first
+        operation.description = self.doco.full
+        if self.doco.yamlData:
+            fieldNames = [f.name for f in attr.fields(operation.__class__)]
+            for k in self.doco.yamlData:
+                if k in fieldNames:
+                    setattr(operation, k, self.doco.yamlData[k])
+                else:
+                    operation._extended['x-' + k] = self.doco.yamlData[k]
 
 
-def decruftDict(dct, matcher=lambda node: not not node):
+@attr.s
+class OpenAPIExtendedDocumentation(Documentation):
     """
-    Remove any key from a dict if its value is a false-value (by default)
-    or any function you want to provide to matcher. Function should return False to skip a key.
+    A `Documentation` that recognizes and parses yaml inclusions
+
+    If the string contains '---', anything below it is treated as yaml properties
     """
-    ret = {}
-    for k, v in dct.items():
-        if isinstance(v, dict):
-            v = decruftDict(v)
+    yamlData = attr.ib(default=None)
 
-        if matcher(v):
-            ret[k] = v
-
-    return ret
+    @classmethod
+    def fromObject(cls, obj, decode=None):
+        orig = Documentation.fromObject(obj, decode)
+        self = cls(orig.raw)
+        lines = self.raw.splitlines()
+        if '---' in lines:
+            n = lines.index('---')
+            this, that = '\n'.join(lines[:n]), '\n'.join(lines[n+1:])
+            self.yamlData = yaml.load(that)
+        else:
+            this = '\n'.join(lines)
+        self.raw = this
+        return self
 
 
 def dumpRule(serviceCls, rule, prefix):
     """
-    Create an OpenAPI 3.0 representation of the rule
+    Create an in-between representation of the rule, so we can eventually convert it to OpenAPIPathItem with OpenAPIOperation(s)
     """
     rulePath = prefix + rule.rule
     rulePath = re.sub('/{2,}', '/', rulePath)
 
-    oar = OpenAPIRule(
+    cor = ConvertedRule(
             rulePath=rulePath,
-            endpoint=rule.endpoint
+            operationId=rule.endpoint
             )
 
     # look for methods
     for meth in rule.methods or []:
-        oar.methods.append(meth)
+        cor.methods.append(meth)
 
-    # edit _branch endpoints to provide the true method name
-    origEP = oar.endpoint
+    # edit _branch operationId to provide the true method name
+    origEP = cor.operationId
     if origEP.endswith('_branch'):
         origEP = origEP[:-7]
-        oar.branch = True
-    oar.endpoint = '%s.%s' % (serviceCls.__name__, origEP)
+        cor.branch = True
+    cor.operationId = '%s.%s' % (serviceCls.__name__, origEP)
     # get the actual method so we can inspect it for extension attributes
     meth = getattr(serviceCls, origEP)
 
-    ## if hasattr(meth, "_roles"):
-    ##     oar.roles = meth._roles
-
-    ## if hasattr(meth, '_json'):
-    ##     oar.json = meth._json
-
     if hasattr(meth, '_subKleinQname'):
-        oar.subKlein = meth._subKleinQname
+        cor.subKlein = meth._subKleinQname
 
-    oar.description = doc(meth, full=True)
-    oar.summary = oar.description.split('\n')[0]
+    cor.doco = OpenAPIExtendedDocumentation.fromObject(meth, decode=True)
+    return cor
 
-    return oar
+
+def literal_unicode_representer(dumper, data):
+    """
+    Use |- literal syntax for long strings
+    """
+    if '\n' in data:
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
+    else:
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data)

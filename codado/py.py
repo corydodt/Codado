@@ -8,27 +8,57 @@ import os
 import re
 import types
 
+import attr
+
+import ftfy
+
 
 EMOJI = u'👻👾🤖😼💫👒🎩🐶🦎🐚🌸🌲🍋🥝🥑🥐🍿🥄⛺🚂🚲🌈🏆🎵💡✏🖍📌🛡♻'
 
 
-def doc(cls, full=False):
+@attr.s
+class Documentation(object):
     """
-    Pull off the first line of documentation from a class
-
-    With full=True, dump the entire doc instead of the first line
+    A documentation parser
     """
-    if cls.__doc__ is None:
-        return ''
+    raw = attr.ib()
+    decode = attr.ib(default=False)
 
-    cdoc = inspect.cleandoc(cls.__doc__)
-    if full:
-        out = re.sub(r'\n\n', '\v', cdoc)
-        out = out.replace('\n', ' ').replace('\v', '\n\n')
-    else:
-        out = cdoc.split('\n')[0]
+    @property
+    def first(self):
+        return self.raw.split('\n')[0]
 
-    return out
+    @property
+    def full(self):
+        """
+        The full docstring, line-folded
+        """
+        # conveniently, all these calls return unicode if they're passed in unicode, so we
+        # won't mangle unicode docstrings at this point.
+        out = re.sub(r'\n\n', '\v', self.raw)
+        return out.replace('\n', ' ').replace('\v', '\n\n')
+
+    @classmethod
+    def fromObject(cls, obj, decode=None):
+        """
+        Construct a `Documentation` from any object with a docstring
+
+        With `decode=True`, decode docstrings as utf-8, then run them through ftfy, and return unicode.
+        """
+        if obj.__doc__ is None:
+            return cls(u'' if decode else '')
+        out = inspect.cleandoc(obj.__doc__)
+        if not decode or isinstance(out, unicode):
+            return cls(out)
+        else:
+            return cls(ftfy.fix_encoding(out.decode('utf-8')))
+
+
+def doc(obj):
+    """
+    The most common case, just give me the first line
+    """
+    return Documentation.fromObject(obj).first
 
 
 def eachMethod(decorator, methodFilter=lambda fName: True):
@@ -73,7 +103,7 @@ class enum(dict):
             dd.append((k, k))
         ret.update(dict(dd))
         return ret
- 
+
     def __getattr__(self, attr):
         try:
             return self[attr]
@@ -111,7 +141,7 @@ class fromdir(object):
 
     >>> with fromdir('codado') as fromcodado:
     ...     print os.listdir('.')
-    ... 
+    ...
     ['__init__.py', 'py.py', ..., 'py.pyc']
 
 

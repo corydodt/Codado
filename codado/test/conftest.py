@@ -1,7 +1,6 @@
 """
 Common pytest workhorse code and fixtures
 """
-
 from klein import Klein
 
 from codado.kleinish import tree
@@ -20,6 +19,23 @@ class TopApp(object):
 class SubApp(object):
     app = Klein()
 
-    @app.route('/end', methods=['POST'])
+    @app.route('/end', methods=['POST', 'HEAD'])
     def end(self, request):
-        return 'hi'
+        """
+        This is an endpoint
+
+        It takes nothing and returns "ended"
+        """
+        return 'ended'
+
+    @app.route('/end', methods=['GET'])
+    def getEnd(self, request): # pragma: nocover
+        """
+        What is the end?
+
+        This is the end.
+        ---
+        tags: [a, z]
+        fish: [red, blue]
+        """
+        return 'status: unending'

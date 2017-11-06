@@ -1,5 +1,6 @@
 attrs
 coverage
+ftfy==4.4.3
 jinja2
 mock
 pytest-flakes

@@ -23,4 +23,4 @@ def test_enter():
             'application/topapp')
 
     res = yield res._app.execute_endpoint('end', Mock())
-    assert res == 'hi'
+    assert res == 'ended'
