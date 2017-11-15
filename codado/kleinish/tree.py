@@ -26,6 +26,8 @@ TheSecond.anything()
 """
 import functools
 
+import attr
+
 from twisted.python.reflect import namedAny
 
 
@@ -47,3 +49,5 @@ def enter(clsQname):
     return wrapper
 
 
+def responses(fn):
+    return update_wrapper(idk, fn)
