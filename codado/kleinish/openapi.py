@@ -191,3 +191,7 @@ def representCleanOpenAPIObjects(dumper, data):
 
     return dumper.represent_dict(dct)
 
+
+class AccumulativeGraph(object):
+    pass
+
