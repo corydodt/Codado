@@ -67,8 +67,9 @@ class OpenAPIResponses(object):
     codeMap = attr.ib(default=attr.Factory(UnsortableOrderedDict))
 
     def status(self, code, description="undocumented"):
-        self.code = str(code)
-        return OpenAPIResponse(description)
+        oar = OpenAPIResponse(description)
+        self.codeMap[code] = oar
+        return oar
 
 
 @attr.s
@@ -192,6 +193,4 @@ def representCleanOpenAPIObjects(dumper, data):
     return dumper.represent_dict(dct)
 
 
-class AccumulativeGraph(object):
-    pass
-
+responses = OpenAPIResponses()

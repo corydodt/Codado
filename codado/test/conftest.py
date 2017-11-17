@@ -28,8 +28,8 @@ class SubApp(object):
         """
         return 'ended'
 
-    @app.route('/end', methods=['GET'])
     @tree.openapi(openapi.responses.default.textHTML({'x-page-class': 'codado.test.conftest.PageClass'}))
+    @app.route('/end', methods=['GET'])
     def getEnd(self, request): # pragma: nocover
         """
         What is the end?
