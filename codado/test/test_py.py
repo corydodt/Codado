@@ -4,6 +4,7 @@ Tests of codado.py
 """
 import os
 from functools import wraps
+from datetime import datetime
 
 from pytest import raises
 
@@ -171,3 +172,35 @@ def test_remoji():
         assert isinstance(choice, unicode)
         assert len(choice) == 2
         assert choice[1] in py.EMOJI
+
+
+def test_parseDate():
+    """
+    Can I convert a basestring to a datetime object?
+    """
+    dateString = '2016-05-02T14:41:14.029622'
+    expected = datetime(2016, 5, 2, 14, 41, 14, 29622)
+    result = py.parseDate(dateString)
+    assert result == expected
+
+    # info includes timezone? result should have tzinfo attached
+    dateString = '2016-05-02T14:41:14.029622Z'
+    result = py.parseDate(dateString)
+    assert result.tzinfo
+
+    # None is returned ONLY if strict=False
+    dateString = None
+    raises(TypeError, py.parseDate, dateString)
+
+    dateString = None
+    expected = None
+    result = py.parseDate(dateString, strict=False)
+    assert result == expected
+
+
+def test_utcnowTZ():
+    """
+    Do I add return a time with a timezone?
+    """
+    now = py.utcnowTZ()
+    assert now.tzinfo
