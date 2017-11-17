@@ -61,7 +61,7 @@ class OpenAPIPathItem(object):
         """
         Gather operations from other and merge them into my operations.
         """
-        for key, value in other._operations.items():
+        for key, value in sorted(other._operations.items()):
             self.addOperation(key, value)
 
     def addOperation(self, key, operation):
@@ -132,7 +132,9 @@ def representCleanOpenAPIPathItem(dumper, data):
     """
     dct = _orderedCleanDict(data)
     if '_operations' in dct:
-        dct.update({k: op for (k, op) in data._operations.items()})
+        items = sorted(data._operations.items())
+        for k, op in items:
+            dct[k] = op
         del dct['_operations']
 
     return dumper.represent_dict(dct)
