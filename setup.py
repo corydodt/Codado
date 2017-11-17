@@ -20,6 +20,8 @@ setup(
         attrs
         ftfy==4.4.3
         jinja2
+        python-dateutil==2.4.0
+        pytz==2015.4
         pyyaml
         werkzeug
         ''').split()
