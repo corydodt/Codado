@@ -120,7 +120,8 @@ def representCleanOpenAPIOperation(dumper, data):
     """
     dct = _orderedCleanDict(data)
     if '_extended' in dct:
-        dct.update({k: ext for (k, ext) in data._extended.items()})
+        for k, ext in data._extended.items():
+            dct[k] = ext
         del dct['_extended']
 
     return dumper.represent_dict(dct)
