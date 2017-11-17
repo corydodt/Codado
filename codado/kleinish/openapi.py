@@ -27,6 +27,52 @@ class UnsortableOrderedDict(OrderedDict):
 
 
 @attr.s
+class OpenAPIMediaType(object):
+    """
+    TODO - an object representing a body of data with a particular media type such as text/html
+    """
+    _data = attr.ib(default=attr.Factory(dict))
+
+    def __call__(self, data):
+        self._data.update(data)
+
+
+@attr.s
+class OpenAPIResponse(object):
+    """
+    A response (HTTP body) returned by an operation
+    """
+    description = attr.ib()
+    headers = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+    content = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+    links = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+
+    def textHTML(self, data):
+        ret = OpenAPIMediaType()
+        self.content['text/html'] = ret
+        return ret
+
+    def applicationJSON(self, data):
+        ret = OpenAPIMediaType()
+        self.content['application/json'] = ret
+        return ret
+
+
+@attr.s
+class OpenAPIResponses(object):
+    """
+    Mapping of responses (available HTTP body return values)
+    """
+    default = attr.ib(default=attr.Factory(lambda: OpenAPIResponse(None)))
+    codeMap = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+
+    def status(self, code, description="undocumented"):
+        oar = OpenAPIResponse(description)
+        self.codeMap[code] = oar
+        return oar
+
+
+@attr.s
 class OpenAPIOperation(object):
     """
     One operation (method) in an OpenAPIPathItem
@@ -146,3 +192,5 @@ def representCleanOpenAPIObjects(dumper, data):
 
     return dumper.represent_dict(dct)
 
+
+responses = OpenAPIResponses()

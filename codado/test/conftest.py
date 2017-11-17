@@ -3,7 +3,7 @@ Common pytest workhorse code and fixtures
 """
 from klein import Klein
 
-from codado.kleinish import tree
+from codado.kleinish import tree, openapi
 
 
 class TopApp(object):
@@ -28,6 +28,7 @@ class SubApp(object):
         """
         return 'ended'
 
+    @tree.openapi(openapi.responses.default.textHTML({'x-page-class': 'codado.test.conftest.PageClass'}))
     @app.route('/end', methods=['GET'])
     def getEnd(self, request): # pragma: nocover
         """

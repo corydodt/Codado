@@ -120,6 +120,9 @@ class OpenAPIExtendedDocumentation(Documentation):
     A `Documentation` that recognizes and parses yaml inclusions
 
     If the string contains '---', anything below it is treated as yaml properties
+
+    If the docstring contains multiple `---`-separated documents, they will be merged
+    into one another, starting from the top.
     """
     yamlData = attr.ib(default=None)
 
@@ -130,8 +133,11 @@ class OpenAPIExtendedDocumentation(Documentation):
         lines = self.raw.splitlines()
         if '---' in lines:
             n = lines.index('---')
-            this, that = '\n'.join(lines[:n]), '\n'.join(lines[n+1:])
-            self.yamlData = yaml.load(that)
+            this, that = '\n'.join(lines[:n]), '\n'.join(lines[n:])
+            self.yamlData = {}
+            for ydoc in yaml.load_all(that):
+                assert isinstance(ydoc, dict), "only dict-like structures allowed in yaml docstrings not %r" % type(ydoc)
+                self.yamlData.update(ydoc)
         else:
             this = '\n'.join(lines)
         self.raw = this
