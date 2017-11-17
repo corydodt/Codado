@@ -19,7 +19,7 @@ EMOJI = u'👻👾🤖😼💫👒🎩🐶🦎🐚🌸🌲🍋🥝🥑🥐🍿�
 @attr.s
 class Documentation(object):
     """
-    A docstring parser
+    A documentation parser
     """
     raw = attr.ib()
     decode = attr.ib(default=False)
@@ -47,12 +47,7 @@ class Documentation(object):
         """
         if obj.__doc__ is None:
             return cls(u'' if decode else '')
-        r = cls.fromString(obj.__doc__, decode=decode)
-        return r
-
-    @classmethod
-    def fromString(cls, s, decode=None):
-        out = inspect.cleandoc(s)
+        out = inspect.cleandoc(obj.__doc__)
         if not decode or isinstance(out, unicode):
             return cls(out)
         else:
