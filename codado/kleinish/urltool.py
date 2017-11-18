@@ -157,7 +157,7 @@ def dumpRule(serviceCls, rule, prefix):
             )
 
     # look for methods
-    for meth in rule.methods or []:
+    for meth in sorted(rule.methods or []):
         cor.methods.append(meth)
 
     # edit _branch operationId to provide the true method name

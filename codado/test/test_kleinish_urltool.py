@@ -67,13 +67,6 @@ def test_postOptions(options, capsys):
           version: TODO
         paths:
           /sub/end:
-            post:
-              summary: This is an endpoint
-              description: |-
-                This is an endpoint
-
-                It takes nothing and returns "ended"
-              operationId: SubApp.end
             get:
               tags:
               - a
@@ -91,6 +84,13 @@ def test_postOptions(options, capsys):
               x-fish:
               - red
               - blue
+            post:
+              summary: This is an endpoint
+              description: |-
+                This is an endpoint
+
+                It takes nothing and returns "ended"
+              operationId: SubApp.end
         """)
 
 

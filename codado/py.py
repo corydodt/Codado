@@ -7,6 +7,11 @@ import inspect
 import os
 import re
 import types
+from datetime import datetime
+
+from dateutil import parser
+
+from pytz import utc
 
 import attr
 
@@ -217,3 +222,26 @@ def remoji():
     in non-western culture. Suggestions and updates to this list 100% welcome.
     """
     return random.choice(EMOJI)
+
+
+def parseDate(dateString, strict=True):
+    """
+    Return a datetime object, by parsing a string date/time
+
+    With strict=False, dateString may be None or '', otherwise it must be a
+    parseable string
+    """
+    if (not strict) and (not dateString):
+        return None
+
+    if not isinstance(dateString, basestring):
+        raise TypeError('%r is not a string' % dateString)
+
+    return parser.parse(dateString)
+
+
+def utcnowTZ():
+    """
+    Return a datetime (now), with UTC timezone, with tzinfo set
+    """
+    return datetime.utcnow().replace(tzinfo=utc)

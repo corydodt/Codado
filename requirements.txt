@@ -6,6 +6,8 @@ mock
 pytest-flakes
 pytest-cov
 pytest-twisted
+python-dateutil==2.4.0
+pytz==2015.4
 pyyaml
 twine
 werkzeug

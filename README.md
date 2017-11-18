@@ -8,6 +8,8 @@ A library of utilities for systems application development
   method matching a pattern
 - codado.fromdir: returns a function that gives paths from a particular location
 - codado.remoji: returns a random, value-neutral emoji from a curated list
+- codado.utcnowTZ: utcnow, but there's actually a timezone on it
+- codado.parseDate: sensible datestring parser
 - codado.tx.Main: a Twisted Usage helper that creates a useful main() function
 - codado.dockerish: a docker event listener that integrates with the Twisted
   event loop and can automatically call handlers for events
@@ -32,6 +34,10 @@ $ twine upload dist/*
 
 ## Change Log
 
+* 0.4.995:
+  - fix a few build/install/test problems with setup.py/travis/tox
+  - adding parseDate and utcnowTZ
+  - make unit tests stop relying on dict-ordering
 * 0.4.993: Preparing for 0.5, adding:
   - remoji
   - urltool now outputs OpenAPI 3.0-spec docs by inspecting your app
