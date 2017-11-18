@@ -3,14 +3,14 @@ Common pytest workhorse code and fixtures
 """
 from klein import Klein
 
-from codado.kleinish import tree, openapi
+from codado.kleinish import openAPIDoc, responses, enter
 
 
 class TopApp(object):
     app = Klein()
 
     @app.route('/sub/', branch=True)
-    @tree.enter('codado.test.conftest.SubApp')
+    @enter('codado.test.conftest.SubApp')
     def subTree(self, request, subKlein):
         request.setHeader('content-type', 'application/topapp')
         return subKlein
@@ -28,7 +28,7 @@ class SubApp(object):
         """
         return 'ended'
 
-    @tree.openapi(openapi.responses.default.textHTML({'x-page-class': 'codado.test.conftest.PageClass'}))
+    @openAPIDoc(responses.default.textHTML({'x-page-class': 'codado.test.conftest.PageClass'}))
     @app.route('/end', methods=['GET'])
     def getEnd(self, request): # pragma: nocover
         """
