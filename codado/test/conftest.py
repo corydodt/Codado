@@ -3,7 +3,7 @@ Common pytest workhorse code and fixtures
 """
 from klein import Klein
 
-from codado.kleinish import openAPIDoc, responses, enter
+from codado.kleinish import openAPIDoc, enter
 
 
 class TopApp(object):
@@ -28,7 +28,7 @@ class SubApp(object):
         """
         return 'ended'
 
-    @openAPIDoc(responses.default.textHTML({'x-page-class': 'codado.test.conftest.PageClass'}))
+    @openAPIDoc(responses={'default': {'text/html': {'x-page-class': 'codado.test.conftest.PageClass'}}})
     @app.route('/end', methods=['GET'])
     def getEnd(self, request): # pragma: nocover
         """
@@ -40,3 +40,9 @@ class SubApp(object):
         fish: [red, blue]
         """
         return 'status: unending'
+
+    @openAPIDoc(responses={'default': {'text/html': {'x-page-class': 'codado.test.conftest.OtherPageClass'}}})
+    @app.route('/end', methods=['PUT'])
+    def putEnd(self, request): # pragma: nocover
+        # this has no docstring
+        pass

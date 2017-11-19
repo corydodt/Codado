@@ -31,10 +31,6 @@ class OpenAPIMediaType(object):
     """
     TODO - an object representing a body of data with a particular media type such as text/html
     """
-    _data = attr.ib(default=attr.Factory(dict))
-
-    def __call__(self, data):
-        self._data.update(data)
 
 
 @attr.s
@@ -47,16 +43,6 @@ class OpenAPIResponse(object):
     content = attr.ib(default=attr.Factory(UnsortableOrderedDict))
     links = attr.ib(default=attr.Factory(UnsortableOrderedDict))
 
-    def textHTML(self, data):
-        ret = OpenAPIMediaType()
-        self.content['text/html'] = ret
-        return ret
-
-    def applicationJSON(self, data):
-        ret = OpenAPIMediaType()
-        self.content['application/json'] = ret
-        return ret
-
 
 @attr.s
 class OpenAPIResponses(object):
@@ -65,11 +51,6 @@ class OpenAPIResponses(object):
     """
     default = attr.ib(default=attr.Factory(lambda: OpenAPIResponse(None)))
     codeMap = attr.ib(default=attr.Factory(UnsortableOrderedDict))
-
-    def status(self, code, description="undocumented"):
-        oar = OpenAPIResponse(description)
-        self.codeMap[code] = oar
-        return oar
 
 
 @attr.s
@@ -194,6 +175,3 @@ def representCleanOpenAPIObjects(dumper, data):
     dct = _orderedCleanDict(data)
 
     return dumper.represent_dict(dct)
-
-
-responses = OpenAPIResponses()

@@ -91,6 +91,13 @@ def test_postOptions(options, capsys):
 
                 It takes nothing and returns "ended"
               operationId: SubApp.end
+            put:
+              operationId: SubApp.putEnd
+              responses:
+                default:
+                  text/html:
+                    x-page-class: codado.test.conftest.OtherPageClass
+
         """)
 
 

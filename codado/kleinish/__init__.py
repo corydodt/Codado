@@ -18,5 +18,4 @@ yaml.add_representer(unicode, urltool.literal_unicode_representer)
 yaml.add_representer(str, urltool.literal_unicode_representer)
 
 from codado.kleinish.tree import openAPIDoc, enter
-from codado.kleinish.openapi import responses
-(openAPIDoc, responses, enter) # for pyflakes
+(openAPIDoc, enter) # for pyflakes
