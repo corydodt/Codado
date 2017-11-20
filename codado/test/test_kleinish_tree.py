@@ -1,10 +1,13 @@
 """
 Tests of the tree decorators in kleinish
 """
+from inspect import cleandoc
+
 from pytest import inlineCallbacks
 
 from mock import Mock
 
+from codado.kleinish import tree
 from codado.test.conftest import TopApp
 
 
@@ -24,3 +27,25 @@ def test_enter():
 
     res = yield res._app.execute_endpoint('end', Mock())
     assert res == 'ended'
+
+
+def test_openapiDoc():
+    """
+    Do I update the function I'm called with?
+    """
+    def fn():
+        """
+        This function has some stuff for sure
+        ---
+        a: b
+        """
+    fn = tree.openAPIDoc(foo={'c': 'd'})(fn)
+    expected = cleandoc('''
+        This function has some stuff for sure
+        ---
+        a: b
+        ---
+        foo:
+          c: d
+        ''') + '\n'
+    assert fn.__doc__ == expected
