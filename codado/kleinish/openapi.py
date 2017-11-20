@@ -175,3 +175,25 @@ def representCleanOpenAPIObjects(dumper, data):
     dct = _orderedCleanDict(data)
 
     return dumper.represent_dict(dct)
+
+
+def mediaTypeHelper(mediaType):
+    """
+    Return a function that creates a Responses object;
+    """
+    def _innerHelper(data=None):
+        """
+        Create a Responses object that contains a MediaType entry of the specified mediaType
+
+        Convenience function for the most common cases where you need an instance of Responses
+        """
+        ret = OpenAPIResponses()
+        if data is None:
+            data = {}
+        ret.default.content[mediaType] = data
+        return ret
+    return _innerHelper
+
+
+textHTML = mediaTypeHelper('text/html')
+applicationJSON = mediaTypeHelper('application/json')

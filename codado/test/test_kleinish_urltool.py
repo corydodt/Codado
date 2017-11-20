@@ -79,8 +79,9 @@ def test_postOptions(options, capsys):
               operationId: SubApp.getEnd
               responses:
                 default:
-                  text/html:
-                    x-page-class: codado.test.conftest.PageClass
+                  content:
+                    text/html:
+                      x-page-class: codado.test.conftest.PageClass
               x-fish:
               - red
               - blue
@@ -95,8 +96,9 @@ def test_postOptions(options, capsys):
               operationId: SubApp.putEnd
               responses:
                 default:
-                  text/html:
-                    x-page-class: codado.test.conftest.OtherPageClass
+                  content:
+                    text/html:
+                      x-page-class: codado.test.conftest.OtherPageClass
 
         """)
 

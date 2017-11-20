@@ -4,6 +4,7 @@ Common pytest workhorse code and fixtures
 from klein import Klein
 
 from codado.kleinish import openAPIDoc, enter
+from codado.kleinish.openapi import textHTML
 
 
 class TopApp(object):
@@ -28,7 +29,7 @@ class SubApp(object):
         """
         return 'ended'
 
-    @openAPIDoc(responses={'default': {'text/html': {'x-page-class': 'codado.test.conftest.PageClass'}}})
+    @openAPIDoc(responses=textHTML({'x-page-class': 'codado.test.conftest.PageClass'}))
     @app.route('/end', methods=['GET'])
     def getEnd(self, request): # pragma: nocover
         """
@@ -41,8 +42,8 @@ class SubApp(object):
         """
         return 'status: unending'
 
-    @openAPIDoc(responses={'default': {'text/html': {'x-page-class': 'codado.test.conftest.OtherPageClass'}}})
+    @openAPIDoc(responses={'default': {'content': {'text/html': {'x-page-class': 'codado.test.conftest.OtherPageClass'}}}})
     @app.route('/end', methods=['PUT'])
     def putEnd(self, request): # pragma: nocover
-        # this has no docstring
+        # this has no docstring, for test coverage
         pass

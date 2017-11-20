@@ -27,3 +27,27 @@ def test_orderedDict():
         c: 5
         x: 6
         ''') + '\n'
+
+
+def test_helperMediaTypes():
+    """
+    Do I produce a Responses object with the right data?
+    """
+    h1 = openapi.textHTML()
+    assert isinstance(h1, openapi.OpenAPIResponses)
+    assert yaml.load(yaml.dump(h1)) == {
+        'default': {'content': {'text/html': {}}}
+    }
+    h2 = openapi.textHTML({'a': 1})
+    assert yaml.load(yaml.dump(h2)) == {
+        'default': {'content': {'text/html': {'a': 1}}}
+    }
+    j1 = openapi.applicationJSON()
+    assert isinstance(j1, openapi.OpenAPIResponses)
+    assert yaml.load(yaml.dump(j1)) == {
+        'default': {'content': {'application/json': {}}}
+    }
+    j2 = openapi.applicationJSON({'a': 1})
+    assert yaml.load(yaml.dump(j2)) == {
+        'default': {'content': {'application/json': {'a': 1}}}
+    }
