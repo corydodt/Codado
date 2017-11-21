@@ -27,6 +27,33 @@ class UnsortableOrderedDict(OrderedDict):
 
 
 @attr.s
+class OpenAPIMediaType(object):
+    """
+    TODO - an object representing a body of data with a particular media type such as text/html
+    """
+
+
+@attr.s
+class OpenAPIResponse(object):
+    """
+    A response (HTTP body) returned by an operation
+    """
+    description = attr.ib()
+    headers = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+    content = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+    links = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+
+
+@attr.s
+class OpenAPIResponses(object):
+    """
+    Mapping of responses (available HTTP body return values)
+    """
+    default = attr.ib(default=attr.Factory(lambda: OpenAPIResponse(None)))
+    codeMap = attr.ib(default=attr.Factory(UnsortableOrderedDict))
+
+
+@attr.s
 class OpenAPIOperation(object):
     """
     One operation (method) in an OpenAPIPathItem
@@ -149,3 +176,24 @@ def representCleanOpenAPIObjects(dumper, data):
 
     return dumper.represent_dict(dct)
 
+
+def mediaTypeHelper(mediaType):
+    """
+    Return a function that creates a Responses object;
+    """
+    def _innerHelper(data=None):
+        """
+        Create a Responses object that contains a MediaType entry of the specified mediaType
+
+        Convenience function for the most common cases where you need an instance of Responses
+        """
+        ret = OpenAPIResponses()
+        if data is None:
+            data = {}
+        ret.default.content[mediaType] = data
+        return ret
+    return _innerHelper
+
+
+textHTML = mediaTypeHelper('text/html')
+applicationJSON = mediaTypeHelper('application/json')

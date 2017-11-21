@@ -34,7 +34,9 @@ $ twine upload dist/*
 
 ## Change Log
 
-* 0.4.995:
+* 0.4.996:
+  - add textHTML() and applicationJSON() helpers to mark klein routes as having
+    responses
   - fix a few build/install/test problems with setup.py/travis/tox
   - adding parseDate and utcnowTZ
   - make unit tests stop relying on dict-ordering

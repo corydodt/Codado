@@ -26,10 +26,17 @@ class Options(Main):
     synopsis = "urltool <classQname> [filter]"
 
     def parseArgs(self, classQname, filt=None):
+        """
+        Required: classQname, a FQPN that contains an instance of Klein()
+        Optional: filt, a regular expression string that will filter URLs
+        """
         self['classQname'] = classQname
         self['filt'] = re.compile(filt or '.*')
 
     def _iterClass(self, cls, prefix=''):
+        """
+        Descend a Klein()'s url_map, and generate ConvertedRule() for each one
+        """
         iterableRules = [(prefix, cls, cls.app.url_map.iter_rules())]
         for prefix, currentClass, i in iter(iterableRules):
             for rule in i:
@@ -44,6 +51,9 @@ class Options(Main):
                 yield converted
 
     def postOptions(self):
+        """
+        From a FQPN which points to a Klein() instance, print YAML OpenAPI3 descriptions of all URLs
+        """
         rootCls = namedAny(self['classQname'])
         rules = list(self._iterClass(rootCls))
         arr = []
@@ -120,6 +130,9 @@ class OpenAPIExtendedDocumentation(Documentation):
     A `Documentation` that recognizes and parses yaml inclusions
 
     If the string contains '---', anything below it is treated as yaml properties
+
+    If the docstring contains multiple `---`-separated documents, they will be merged
+    into one another, starting from the top.
     """
     yamlData = attr.ib(default=None)
 
@@ -130,8 +143,11 @@ class OpenAPIExtendedDocumentation(Documentation):
         lines = self.raw.splitlines()
         if '---' in lines:
             n = lines.index('---')
-            this, that = '\n'.join(lines[:n]), '\n'.join(lines[n+1:])
-            self.yamlData = yaml.load(that)
+            this, that = '\n'.join(lines[:n]), '\n'.join(lines[n:])
+            self.yamlData = {}
+            for ydoc in yaml.load_all(that):
+                assert isinstance(ydoc, dict), "only dict-like structures allowed in yaml docstrings not %r" % type(ydoc)
+                self.yamlData.update(ydoc)
         else:
             this = '\n'.join(lines)
         self.raw = this

@@ -3,14 +3,15 @@ Common pytest workhorse code and fixtures
 """
 from klein import Klein
 
-from codado.kleinish import tree
+from codado.kleinish import openAPIDoc, enter
+from codado.kleinish.openapi import textHTML
 
 
 class TopApp(object):
     app = Klein()
 
     @app.route('/sub/', branch=True)
-    @tree.enter('codado.test.conftest.SubApp')
+    @enter('codado.test.conftest.SubApp')
     def subTree(self, request, subKlein):
         request.setHeader('content-type', 'application/topapp')
         return subKlein
@@ -28,6 +29,7 @@ class SubApp(object):
         """
         return 'ended'
 
+    @openAPIDoc(responses=textHTML({'x-page-class': 'codado.test.conftest.PageClass'}))
     @app.route('/end', methods=['GET'])
     def getEnd(self, request): # pragma: nocover
         """
@@ -39,3 +41,9 @@ class SubApp(object):
         fish: [red, blue]
         """
         return 'status: unending'
+
+    @openAPIDoc(responses={'default': {'content': {'text/html': {'x-page-class': 'codado.test.conftest.OtherPageClass'}}}})
+    @app.route('/end', methods=['PUT'])
+    def putEnd(self, request): # pragma: nocover
+        # this has no docstring, for test coverage
+        pass
