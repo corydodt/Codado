@@ -28,7 +28,7 @@ $ tox
 ##  Build/upload
 
 ```
-$ python setup.py sdist bdist_wininst
+$ python setup.py sdist bdist_wheel
 $ twine upload dist/*
 ```
 
