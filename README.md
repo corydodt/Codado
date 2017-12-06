@@ -45,6 +45,7 @@ $ twine upload dist/*
   - parseDate() and utcnowTZ()
   - remoji()
   - Flag `--reverse` (`-v`) for urltool filters
+  - LottaPatches() test tool
 #### Changed:
   - fix a few build/install/test problems with setup.py/travis/tox
   - make unit tests stop relying on dict-ordering
