@@ -9,6 +9,8 @@ import re
 import types
 from datetime import datetime
 
+from mock import Mock
+
 from dateutil import parser
 
 from pytz import utc
@@ -245,3 +247,36 @@ def utcnowTZ():
     Return a datetime (now), with UTC timezone, with tzinfo set
     """
     return datetime.utcnow().replace(tzinfo=utc)
+
+
+class LottaPatches(object):
+    """
+    Patch a lot of things at once, managing cleanup afterwards
+    Exposes all of the keyword arguments as mock objects for inspection,
+    through the context variable.
+
+    Use:
+
+        patchContext = LottaPatches(
+                mFoo=patch.object(foo, 'Foo'),
+                mBar=patch.object(bar, 'Bar'))
+
+        with patchContext as lots:
+            ... run code ...
+
+            lots.mFoo.assert_called_once_with(...)
+            lots.mBar.assert_called_once_with(...)
+    """
+    def __init__(self, **patchers):
+        self.patchers = patchers
+
+    def __enter__(self):
+        mocks = {}
+        for name, p in self.patchers.items():
+            mocks[name] = p.start()
+
+        return Mock(**mocks)
+
+    def __exit__(self, type, value, tb):
+        for p in self.patchers.values():
+            p.stop()
