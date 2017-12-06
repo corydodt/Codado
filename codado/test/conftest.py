@@ -20,6 +20,15 @@ class TopApp(object):
 class SubApp(object):
     app = Klein()
 
+    @app.route('/idk', methods=['GET'])
+    def idk(self, request): # pragma: nocover
+        """
+        This is an endpoint that can be filtered out
+
+        It takes nothing and returns "idk"
+        """
+        return 'idk'
+
     @app.route('/end', methods=['POST', 'HEAD'])
     def end(self, request):
         """

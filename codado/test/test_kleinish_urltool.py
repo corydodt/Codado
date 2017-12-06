@@ -46,12 +46,82 @@ def options():
 
 def test_parseArgs(options):
     """
-    Do I correct default the filter argument
+    Do I correctly default the filter argument
     """
     options.parseArgs('codado.test.conftest.TopApp')
     assert options['filt'] == re.compile('.*')
     options.parseArgs('codado.test.conftest.TopApp', 'hello')
     assert options['filt'] == re.compile('hello')
+
+
+def test_filter(options, capsys):
+    """
+    Do I filter correctly? Forwards and reverse?
+    """
+    options.parseArgs('codado.test.conftest.TopApp')
+    options['filt'] = re.compile('idk')
+    options.postOptions()
+    assert capsys.readouterr()[0].strip() == cleandoc("""
+        openapi: 3.0.0
+        info:
+          title: TODO
+          version: TODO
+        paths:
+          /sub/idk:
+            get:
+              summary: This is an endpoint that can be filtered out
+              description: |-
+                This is an endpoint that can be filtered out
+
+                It takes nothing and returns "idk"
+              operationId: SubApp.idk
+        """)
+
+    options['reverse'] = True
+    options.postOptions()
+    assert capsys.readouterr()[0].strip() == cleandoc("""
+        openapi: 3.0.0
+        info:
+          title: TODO
+          version: TODO
+        paths:
+          /sub/end:
+            get:
+              tags:
+              - a
+              - z
+              summary: What is the end?
+              description: |-
+                What is the end?
+
+                This is the end.
+              operationId: SubApp.getEnd
+              responses:
+                default:
+                  content:
+                    text/html:
+                      x-page-class: codado.test.conftest.PageClass
+              x-fish:
+              - red
+              - blue
+            post:
+              summary: This is an endpoint
+              description: |-
+                This is an endpoint
+
+                It takes nothing and returns "ended"
+              operationId: SubApp.end
+            put:
+              operationId: SubApp.putEnd
+              responses:
+                default:
+                  content:
+                    text/html:
+                      x-page-class: codado.test.conftest.OtherPageClass
+
+        """)
+
+
 
 
 def test_postOptions(options, capsys):
@@ -99,6 +169,14 @@ def test_postOptions(options, capsys):
                   content:
                     text/html:
                       x-page-class: codado.test.conftest.OtherPageClass
+          /sub/idk:
+            get:
+              summary: This is an endpoint that can be filtered out
+              description: |-
+                This is an endpoint that can be filtered out
+
+                It takes nothing and returns "idk"
+              operationId: SubApp.idk
 
         """)
 

@@ -23,6 +23,7 @@ class Options(Main):
     Apply optional <filter> as a regular expression searching within urls. For
     example, to match all urls beginning with api, you might use '^/api'
     """
+    optFlags = [['reverse', 'v', 'Invert the filter: select URLs which do not match']]
     synopsis = "urltool <classQname> [filter]"
 
     def parseArgs(self, classQname, filt=None):
@@ -61,7 +62,9 @@ class Options(Main):
             if item.subKlein:
                 continue
 
-            if re.search(self['filt'], item.rulePath):
+            matched = self['filt'].search(item.rulePath)
+            matched = not matched if self['reverse'] else matched
+            if matched:
                 arr.append(tuple(item.toOpenAPIPath()))
 
         openapi3 = openapi.OpenAPI()

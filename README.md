@@ -27,20 +27,30 @@ $ tox
 
 ##  Build/upload
 
+Make sure to:
+
+- Update codado/_version.py
+- Update the Change Log below
+
 ```
 $ python setup.py sdist bdist_wheel
 $ twine upload dist/*
 ```
 
 ## Change Log
-
-* 0.4.996:
-  - add textHTML() and applicationJSON() helpers to mark klein routes as having
+### [0.4.997] - 2017.12.06
+#### Added:
+  - textHTML() and applicationJSON() helpers to mark klein routes as having
     responses
+  - parseDate() and utcnowTZ()
+  - remoji()
+  - Flag `--reverse` (`-v`) for urltool filters
+#### Changed:
   - fix a few build/install/test problems with setup.py/travis/tox
-  - adding parseDate and utcnowTZ
   - make unit tests stop relying on dict-ordering
-* 0.4.993: Preparing for 0.5, adding:
-  - remoji
   - urltool now outputs OpenAPI 3.0-spec docs by inspecting your app
-* 0.4: Initial public usable release
+### [0.4] - 2017.06.11
+  - 0.4: Initial public usable release
+
+[0.4.997]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.4.997
+[0.4]: https://github.com/corydodt/Codado/tree/release-0.4.0
