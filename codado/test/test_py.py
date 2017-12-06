@@ -6,6 +6,8 @@ import os
 from functools import wraps
 from datetime import datetime
 
+from mock import patch
+
 from pytest import raises
 
 from codado import py
@@ -204,3 +206,19 @@ def test_utcnowTZ():
     """
     now = py.utcnowTZ()
     assert now.tzinfo
+
+
+def test_lottaPatches():
+    """
+    Do I patch multiple things at once?
+    """
+    patchContext = py.LottaPatches(
+            mParseDate=patch.object(py, 'parseDate'),
+            mUTCNow=patch.object(py, 'utcnowTZ'))
+
+    with patchContext as lots:
+        py.parseDate('a', 'b')
+        py.utcnowTZ()
+
+        lots.mParseDate.assert_called_once_with('a', 'b')
+        lots.mUTCNow.assert_called_once_with()
