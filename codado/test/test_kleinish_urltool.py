@@ -59,7 +59,7 @@ def test_filter(options, capsys):
     Do I filter correctly? Forwards and reverse?
     """
     options.parseArgs('codado.test.conftest.TopApp')
-    options['filt'] = re.compile('idk')
+    options['filt'] = re.compile('hasqueryarg')
     options.postOptions()
     assert capsys.readouterr()[0].strip() == cleandoc("""
         openapi: 3.0.0
@@ -67,15 +67,19 @@ def test_filter(options, capsys):
           title: TODO
           version: TODO
         paths:
-          /sub/idk:
+          /sub/hasqueryarg:
             get:
               summary: This is an endpoint that can be filtered out
               description: |-
                 This is an endpoint that can be filtered out
 
-                It takes nothing and returns "idk"
-              operationId: SubApp.idk
-        """)
+                It takes a query arg and returns it
+              operationId: SubApp.hasQueryArg
+              parameters:
+              - in: query
+                name: color
+                required: true
+    """)
 
     options['reverse'] = True
     options.postOptions()
@@ -169,14 +173,18 @@ def test_postOptions(options, capsys):
                   content:
                     text/html:
                       x-page-class: codado.test.conftest.OtherPageClass
-          /sub/idk:
+          /sub/hasqueryarg:
             get:
               summary: This is an endpoint that can be filtered out
               description: |-
                 This is an endpoint that can be filtered out
 
-                It takes nothing and returns "idk"
-              operationId: SubApp.idk
+                It takes a query arg and returns it
+              operationId: SubApp.hasQueryArg
+              parameters:
+              - in: query
+                name: color
+                required: true
 
         """)
 

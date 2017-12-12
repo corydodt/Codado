@@ -38,10 +38,11 @@ $ twine upload dist/*
 ```
 
 ## Change Log
-### [0.4.997] - 2017.12.06
+### [0.4.998] - 2017.12.12
 #### Added:
   - textHTML() and applicationJSON() helpers to mark klein routes as having
     responses
+  - queryParameter() to mark klein routes as taking parameters
   - parseDate() and utcnowTZ()
   - remoji()
   - Flag `--reverse` (`-v`) for urltool filters

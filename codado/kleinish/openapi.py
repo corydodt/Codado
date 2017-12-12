@@ -115,6 +115,19 @@ class OpenAPIInfo(object):
 
 
 @attr.s
+class OpenAPIParameter(object):
+    """
+    The .parameters attribute of an operation
+    """
+    name = attr.ib()
+    in_ = attr.ib()
+    description = attr.ib(default="")
+    required = attr.ib(default=False)
+    deprecated = attr.ib(default=False)
+    allowEmptyValue = attr.ib(default=False)
+
+
+@attr.s
 class OpenAPI(object):
     """
     The root openapi spec document
@@ -168,6 +181,18 @@ def representCleanOpenAPIPathItem(dumper, data):
     return dumper.represent_dict(dct)
 
 
+def representCleanOpenAPIParameter(dumper, data):
+    """
+    Rename python reserved keyword fields before representing an OpenAPIParameter
+    """
+    dct = _orderedCleanDict(data)
+    if 'in_' in dct:
+        dct['in'] = dct['in_']
+        del dct['in_']
+
+    return dumper.represent_dict(dct)
+
+
 def representCleanOpenAPIObjects(dumper, data):
     """
     Produce a representation of an OpenAPI object, removing empty attributes
@@ -197,3 +222,10 @@ def mediaTypeHelper(mediaType):
 
 textHTML = mediaTypeHelper('text/html')
 applicationJSON = mediaTypeHelper('application/json')
+
+
+def queryParameter(name, **kwargs):
+    """
+    Shorthand for a query parameter
+    """
+    return OpenAPIParameter(name=name, in_="query", **kwargs)

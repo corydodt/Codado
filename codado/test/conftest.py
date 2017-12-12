@@ -4,7 +4,7 @@ Common pytest workhorse code and fixtures
 from klein import Klein
 
 from codado.kleinish import openAPIDoc, enter
-from codado.kleinish.openapi import textHTML
+from codado.kleinish.openapi import textHTML, queryParameter
 
 
 class TopApp(object):
@@ -20,14 +20,15 @@ class TopApp(object):
 class SubApp(object):
     app = Klein()
 
-    @app.route('/idk', methods=['GET'])
-    def idk(self, request): # pragma: nocover
+    @openAPIDoc(parameters=[queryParameter('color', required=True)])
+    @app.route('/hasqueryarg', methods=['GET'])
+    def hasQueryArg(self, request): # pragma: nocover
         """
         This is an endpoint that can be filtered out
 
-        It takes nothing and returns "idk"
+        It takes a query arg and returns it
         """
-        return 'idk'
+        return request.args.get('color')[0]
 
     @app.route('/end', methods=['POST', 'HEAD'])
     def end(self, request):

@@ -10,6 +10,7 @@ from codado.kleinish.tree import openAPIDoc, enter
 (openAPIDoc, enter) # for pyflakes
 
 
+yaml.add_representer(openapi.OpenAPIParameter, openapi.representCleanOpenAPIParameter)
 yaml.add_representer(openapi.OpenAPIResponse, openapi.representCleanOpenAPIObjects)
 yaml.add_representer(openapi.OpenAPIResponses, openapi.representCleanOpenAPIObjects)
 yaml.add_representer(openapi.OpenAPIMediaType, openapi.representCleanOpenAPIObjects)
