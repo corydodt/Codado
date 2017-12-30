@@ -38,8 +38,9 @@ $ twine upload dist/*
 ```
 
 ## Change Log
-### [0.4.998] - 2017.12.12
+### [0.4.999] - 2017.12.12
 #### Added:
+  - fix `install_requires` missing `mock` to help pip installation
   - textHTML() and applicationJSON() helpers to mark klein routes as having
     responses
   - queryParameter() to mark klein routes as taking parameters

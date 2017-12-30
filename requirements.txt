@@ -2,7 +2,7 @@ attrs
 coverage
 ftfy==4.4.3
 jinja2
-mock
+mock>=2.0.0,<2.1.0
 pytest-flakes
 pytest-cov
 pytest-twisted
