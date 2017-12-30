@@ -15,15 +15,14 @@ setup(
     url = 'https://github.com/corydodt/Codado',
     keywords = ['twisted', 'utility'],
     classifiers = [],
-    scripts = ['bin/urltool', 'bin/jentemplate'],
+    scripts = ['bin/jentemplate'],
     install_requires=cleandoc('''
         attrs>=17.1.0
-        ftfy==4.4.3
+        crosscap
         jinja2
         mock>=2.0.0,<2.1.0
         python-dateutil==2.4.0
         pytz==2015.4
         pyyaml
-        werkzeug
         ''').split()
 )

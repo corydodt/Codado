@@ -13,40 +13,6 @@ from pytest import raises
 from codado import py
 
 
-def test_documentation():
-    """
-    Do I find the doc on an object?
-
-    Do I extract first the first line?
-
-    Do I decode if asked to?
-    """
-    class Cls(object):
-        """
-        I have a bytestr docstring
-
-        It is 2 lines
-        """
-
-    class Unicls(object):
-        u"""
-        I have a unicode docstring
-        """
-
-    class StrClsWithUTF8(object):
-        """
-        I have a 😼💫 docstring
-        """
-
-    assert py.doc(Cls) == "I have a bytestr docstring"
-
-    assert py.Documentation.fromObject(Cls).full == "I have a bytestr docstring\n\nIt is 2 lines"
-    assert isinstance(py.Documentation.fromObject(Unicls).first, unicode)
-    strDoc = py.Documentation.fromObject(StrClsWithUTF8, decode=True)
-    assert strDoc.first == u'I have a 😼💫 docstring'
-    assert isinstance(strDoc.first, unicode)
-
-
 def test_fromdir():
     """
     Does fromdir fulfill all of its responsibilities?

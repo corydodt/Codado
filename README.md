@@ -38,7 +38,7 @@ $ twine upload dist/*
 ```
 
 ## Change Log
-### [0.4.999] - 2017.12.12
+### [0.5.0] - 2017.12.29
 #### Added:
   - fix `install_requires` missing `mock` to help pip installation
   - textHTML() and applicationJSON() helpers to mark klein routes as having
@@ -49,11 +49,14 @@ $ twine upload dist/*
   - Flag `--reverse` (`-v`) for urltool filters
   - LottaPatches() test tool
 #### Changed:
+  - All of `codado.kleinish` is DEPRECATED. This corresponds to the release of [Crosscap] 0.1.0, which takes over this functionality. Kleinish will be removed from codado by the 0.6.0 release.
+  - `codado.py.doc` is DEPRECATED. This is also now found in Crosscap, and will be removed by 0.6.0.
   - fix a few build/install/test problems with setup.py/travis/tox
   - make unit tests stop relying on dict-ordering
   - urltool now outputs OpenAPI 3.0-spec docs by inspecting your app
 ### [0.4] - 2017.06.11
   - 0.4: Initial public usable release
 
-[0.4.999]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.4.999
+[Crosscap]: https://github.com/corydodt/Crosscap
+[0.5.0]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.5.0
 [0.4]: https://github.com/corydodt/Codado/tree/release-0.4.0

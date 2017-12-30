@@ -1,6 +1,5 @@
 attrs
 coverage
-ftfy==4.4.3
 jinja2
 mock>=2.0.0,<2.1.0
 pytest-flakes
@@ -11,4 +10,3 @@ pytz==2015.4
 pyyaml
 tox
 twine
-werkzeug
