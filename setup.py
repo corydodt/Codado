@@ -17,7 +17,7 @@ setup(
     classifiers = [],
     scripts = ['bin/urltool', 'bin/jentemplate'],
     install_requires=cleandoc('''
-        attrs
+        attrs>=17.1.0
         ftfy==4.4.3
         jinja2
         mock>=2.0.0,<2.1.0
