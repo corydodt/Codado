@@ -55,5 +55,5 @@ $ twine upload dist/*
 ### [0.4] - 2017.06.11
   - 0.4: Initial public usable release
 
-[0.4.998]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.4.998
+[0.4.999]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.4.999
 [0.4]: https://github.com/corydodt/Codado/tree/release-0.4.0
