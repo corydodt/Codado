@@ -1,10 +1,15 @@
 """
 Useful bits for klein development
 """
+import warnings
+
 import yaml
 
 from codado.kleinish import openapi, urltool
 from codado.kleinish.tree import openAPIDoc, enter
+
+
+warnings.warn("codado.kleinish is deprecated. Use crosscap instead!", DeprecationWarning)
 
 
 (openAPIDoc, enter) # for pyflakes
