@@ -34,6 +34,10 @@ $ twine upload dist/*
 ```
 
 ## Change Log
+### [0.5.2] - 2018.04.21
+#### Changed:
+  - Permit recent versions of pytz to be installed
+
 ### [0.5.1] - 2017.12.29
 #### Added:
   - For backward compatibility, restore `codado.kleinish.tree` and `.openapi` (which are still deprecated)
@@ -58,6 +62,7 @@ $ twine upload dist/*
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
+[0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.1...release-0.5.2
 [0.5.1]: https://github.com/corydodt/Codado/compare/release-0.5.0...release-0.5.1
 [0.5.0]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.5.0
 [0.4]: https://github.com/corydodt/Codado/tree/release-0.4.0

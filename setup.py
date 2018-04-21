@@ -22,7 +22,7 @@ setup(
         jinja2
         mock>=2.0.0,<2.1.0
         python-dateutil==2.4.0
-        pytz==2015.4
+        pytz>=2015.4
         pyyaml
         ''').split()
 )

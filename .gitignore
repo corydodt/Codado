@@ -24,6 +24,7 @@ var/
 .installed.cfg
 *.egg
 MANIFEST
+/.cache
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -46,6 +47,7 @@ coverage.xml
 *,cover
 .hypothesis/
 _trial_temp/
+/.pytest_cache
 
 # Translations
 *.mo
