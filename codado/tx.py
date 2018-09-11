@@ -1,6 +1,7 @@
 """
 Useful Twisted-enhancing utilities
 """
+from __future__ import print_function
 import sys
 import json
 
@@ -42,13 +43,13 @@ class Main(usage.Options):
         try:
             o = cls()
             o.parseOptions(args)
-        except usage.UsageError, e:
-            print o.getSynopsis()
-            print o.getUsage()
-            print str(e)
+        except usage.UsageError as e:
+            print(o.getSynopsis())
+            print(o.getUsage())
+            print(str(e))
             return 1
-        except CLIError, ce:
-            print str(ce)
+        except CLIError as ce:
+            print(str(ce))
             return ce.returnCode
 
         return 0

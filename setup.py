@@ -3,7 +3,7 @@ from inspect import cleandoc
 from setuptools import setup
 
 _version = {}
-execfile('codado/_version.py', _version)
+exec(open('codado/_version.py').read(), _version)
 
 setup(
     name = 'Codado',
@@ -14,7 +14,11 @@ setup(
     author_email = 'corydodt@gmail.com',
     url = 'https://github.com/corydodt/Codado',
     keywords = ['twisted', 'utility'],
-    classifiers = [],
+    classifiers = [
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License"
+    ],
     scripts = ['bin/jentemplate'],
     install_requires=cleandoc('''
         attrs>=17.1.0

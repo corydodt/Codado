@@ -1,6 +1,7 @@
 """
 Publish docker events
 """
+from __future__ import print_function
 import time
 
 import attr
@@ -257,7 +258,7 @@ class DockerEngine(object):
         object, for example ".container" for container events.
         """
         def _deco(fn):
-            print "Making %r a handler for %r" % (fn.__name__, eventName)
+            print("Making %r a handler for %r" % (fn.__name__, eventName))
             assert eventName in VALID_EVENTS, "%r is not a docker event" % eventName
             self.handlers.setdefault(eventName, []).append(fn.__name__)
             return fn

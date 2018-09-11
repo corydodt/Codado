@@ -1,6 +1,7 @@
 """
 Tests for twisted-related utilites in Codado
 """
+from __future__ import print_function
 import shlex
 import re
 import sys
@@ -72,7 +73,7 @@ class MainTest(unittest.TestCase):
                 if 'error' in self['ret']:
                     raise tx.CLIError('o', 1, 'This is an error!')
 
-                print self['ret']
+                print(self['ret'])
 
         O.__name__ = name
         return O

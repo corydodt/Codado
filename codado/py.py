@@ -50,11 +50,11 @@ def eachMethod(decorator, methodFilter=lambda fName: True):
     def innerDeco(cls):
         for fName, fn in inspect.getmembers(cls):
             if type(fn) is types.MethodType and methodFilter(fName):
-                if fn.im_self is None:
+                if fn.__self__ is None:
                     # this is an unbound instance method
                     setattr(cls, fName, decorator(fn))
                 else:
-                    assert fn.im_class is type, "This should be a classmethod but it doesn't look like one: %r" % fName
+                    assert fn.__self__.__class__ is type, "This should be a classmethod but it doesn't look like one: %r" % fName
                     setattr(cls, fName, classmethod(decorator(fn)))
 
         return cls

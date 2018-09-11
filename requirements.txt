@@ -1,6 +1,7 @@
 attrs
 coverage
 crosscap
+future
 jinja2
 mock>=2.0.0,<2.1.0
 pytest-flakes

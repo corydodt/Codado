@@ -2,6 +2,7 @@
 """
 Tests of codado.py
 """
+from __future__ import print_function
 import os
 from functools import wraps
 from datetime import datetime
@@ -27,7 +28,7 @@ def test_fromdir():
 
     parent = os.path.dirname(cwd)
     fromparent = py.fromdir(parent)
-    print fromparent('')
+    print(fromparent(''))
 
     # callable joins files, and,
     # a fromdir() instance with a file argument acts like sibpath
@@ -71,7 +72,7 @@ def test_eachMethod():
     Does eachMethod properly handle arguments the function is called with?
     """
     def deco(fn):
-        fClass = fn.im_class
+        fClass = fn.__self__.__class__
 
         if fClass is type:
             @wraps(fn)
