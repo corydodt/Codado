@@ -3,6 +3,8 @@ Tests of the dockerish event bus
 """
 import time
 
+from builtins import object
+
 from pytest import fixture, mark
 
 from mock import MagicMock, patch

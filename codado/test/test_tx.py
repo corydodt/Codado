@@ -2,13 +2,18 @@
 Tests for twisted-related utilites in Codado
 """
 from __future__ import print_function
+
 import shlex
 import re
 import sys
 from contextlib import contextmanager
-from cStringIO import StringIO
+from io import StringIO
+
+from future import standard_library
+standard_library.install_aliases()
 
 from mock import patch
+
 
 try:
     from twisted.trial import unittest

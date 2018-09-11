@@ -9,6 +9,9 @@ import random
 import types
 import warnings
 
+from past.builtins import basestring
+from builtins import object
+
 from mock import Mock
 
 from dateutil import parser
@@ -230,11 +233,11 @@ class LottaPatches(object):
 
     def __enter__(self):
         mocks = {}
-        for name, p in self.patchers.items():
+        for name, p in list(self.patchers.items()):
             mocks[name] = p.start()
 
         return Mock(**mocks)
 
     def __exit__(self, type, value, tb):
-        for p in self.patchers.values():
+        for p in list(self.patchers.values()):
             p.stop()

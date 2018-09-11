@@ -3,9 +3,12 @@
 Tests of codado.py
 """
 from __future__ import print_function
-import os
-from functools import wraps
+
 from datetime import datetime
+from functools import wraps
+import os
+
+from builtins import range, object
 
 from mock import patch
 
@@ -138,7 +141,7 @@ def test_remoji():
     """
     for n in range(100):
         choice = py.remoji() + py.remoji()
-        assert isinstance(choice, unicode)
+        assert isinstance(choice, type(u''))
         assert len(choice) == 2
         assert choice[1] in py.EMOJI
 
