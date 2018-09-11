@@ -34,6 +34,10 @@ $ twine upload dist/*
 ```
 
 ## Change Log
+### [0.6.0] - 2018.09.11
+#### Added:
+  - Codado fully supports Python 3.6+
+
 ### [0.5.2] - 2018.04.21
 #### Changed:
   - Permit recent versions of pytz to be installed
@@ -58,10 +62,12 @@ $ twine upload dist/*
   - fix a few build/install/test problems with setup.py/travis/tox
   - make unit tests stop relying on dict-ordering
   - urltool now outputs OpenAPI 3.0-spec docs by inspecting your app
+
 ### [0.4] - 2017.06.11
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
+[0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.0
 [0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.1...release-0.5.2
 [0.5.1]: https://github.com/corydodt/Codado/compare/release-0.5.0...release-0.5.1
 [0.5.0]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.5.0
