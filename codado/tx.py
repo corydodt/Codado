@@ -5,6 +5,8 @@ from __future__ import print_function
 import sys
 import json
 
+from builtins import str
+
 from twisted.python import usage
 from twisted.protocols import amp
 
