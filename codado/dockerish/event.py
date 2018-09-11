@@ -87,7 +87,7 @@ class EventActor(object):
         Build an instance of this class from the dict coming from the
         docker-py event
         """
-        # this method is called automatically by convert= when instantiating
+        # this method is called automatically by converter= when instantiating
         # an event, but we can skip it if we this is already an actual EventActor
         if isinstance(dct, EventActor):
             return dct
@@ -110,7 +110,7 @@ class Event(object):
     id = attr.ib()
     time = attr.ib()
     timeNano = attr.ib()
-    actor = attr.ib(convert=EventActor.fromLowLevelActor)
+    actor = attr.ib(converter=EventActor.fromLowLevelActor)
     action = attr.ib()
     eventFrom = attr.ib()
     eventType = attr.ib()
