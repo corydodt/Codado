@@ -35,7 +35,7 @@ $ twine upload dist/*
 ```
 
 ## Change Log
-### [0.6.0] - 2018.09.11
+### [0.6.1] - 2018.09.12
 #### Added:
   - Codado fully supports Python 3.6+
 
@@ -75,7 +75,7 @@ $ twine upload dist/*
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
-[0.6.0]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.0
+[0.6.1]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.1
 [0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.1...release-0.5.2
 [0.5.1]: https://github.com/corydodt/Codado/compare/release-0.5.0...release-0.5.1
 [0.5.0]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.5.0
