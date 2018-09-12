@@ -1,4 +1,4 @@
-attrs
+attrs>=18.2.0
 coverage
 crosscap
 future
@@ -12,3 +12,4 @@ pytz>=2015.4
 pyyaml
 tox
 twine
+twisted

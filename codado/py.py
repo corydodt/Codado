@@ -8,8 +8,10 @@ from datetime import datetime
 import inspect
 import os
 import random
-import types
 import warnings
+
+from past.builtins import basestring
+from builtins import object
 
 from mock import Mock
 
@@ -49,15 +51,12 @@ def eachMethod(decorator, methodFilter=lambda fName: True):
         prefix = methodFilter
         methodFilter = lambda fName: fName.startswith(prefix)
 
+    ismethod = lambda fn: inspect.ismethod(fn) or inspect.ismethoddescriptor(fn)
+
     def innerDeco(cls):
         for fName, fn in inspect.getmembers(cls):
-            if type(fn) is types.MethodType and methodFilter(fName):
-                if fn.__self__ is None:
-                    # this is an unbound instance method
-                    setattr(cls, fName, decorator(fn))
-                else:
-                    assert fn.__self__.__class__ is type, "This should be a classmethod but it doesn't look like one: %r" % fName
-                    setattr(cls, fName, classmethod(decorator(fn)))
+            if ismethod(fn) and methodFilter(fName):
+                setattr(cls, fName, decorator(fn))
 
         return cls
     return innerDeco

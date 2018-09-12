@@ -2,8 +2,10 @@
 Publish docker events
 """
 from __future__ import print_function
-from builtins import object
+
 import time
+
+from builtins import object
 
 import attr
 
