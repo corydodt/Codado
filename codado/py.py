@@ -6,8 +6,10 @@ from datetime import datetime
 import inspect
 import os
 import random
-import types
 import warnings
+
+from builtins import object
+from past.builtins import basestring
 
 from mock import Mock
 
@@ -18,11 +20,17 @@ from pytz import utc
 from crosscap.doc import Documentation as _Documentation, doc as _doc
 
 
+if hasattr(inspect, 'getfullargspec'): # pragma: nocover
+    getargspec = inspect.getfullargspec
+else: # pragma: nocover
+    getargspec = inspect.getargspec
+
+
 EMOJI = u'👻👾🤖😼💫👒🎩🐶🦎🐚🌸🌲🍋🥝🥑🥐🍿🥄⛺🚂🚲🌈🏆🎵💡✏🖍📌🛡♻'
 
 
 def Documentation(*a, **kw): # pragma: nocover
-    warnings.warn("from codado.py Documentation is DEPRECATED. Import from crosscap instead.", DeprecationWarning)
+    warnings.warn("from codado.py import Documentation is DEPRECATED. Import from crosscap instead.", DeprecationWarning)
     return _Documentation(*a, **kw)
 
 
@@ -47,15 +55,20 @@ def eachMethod(decorator, methodFilter=lambda fName: True):
         prefix = methodFilter
         methodFilter = lambda fName: fName.startswith(prefix)
 
+    ismethod = lambda fn: inspect.ismethod(fn) or inspect.isfunction(fn)
+
     def innerDeco(cls):
+        assert inspect.isclass(cls), "eachMethod is designed to be used only on classes"
         for fName, fn in inspect.getmembers(cls):
-            if type(fn) is types.MethodType and methodFilter(fName):
-                if fn.im_self is None:
-                    # this is an unbound instance method
+            if methodFilter(fName):
+                if ismethod(fn):
+                    # We attempt to avoid decorating staticmethods by looking for an arg named cls
+                    # or self; this is a kludge, but there's no other way to tell, and
+                    # staticmethods do not work correctly with eachMethod
+                    if getargspec(fn).args[0] not in ['cls', 'self']:
+                        continue
+
                     setattr(cls, fName, decorator(fn))
-                else:
-                    assert fn.im_class is type, "This should be a classmethod but it doesn't look like one: %r" % fName
-                    setattr(cls, fName, classmethod(decorator(fn)))
 
         return cls
     return innerDeco
@@ -230,11 +243,11 @@ class LottaPatches(object):
 
     def __enter__(self):
         mocks = {}
-        for name, p in self.patchers.items():
+        for name, p in list(self.patchers.items()):
             mocks[name] = p.start()
 
         return Mock(**mocks)
 
     def __exit__(self, type, value, tb):
-        for p in self.patchers.values():
+        for p in list(self.patchers.values()):
             p.stop()

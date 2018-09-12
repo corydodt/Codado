@@ -4,6 +4,7 @@ Template a file using shell environment as the data
 
 Designed to be very, very simple for use in docker containers
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -13,4 +14,4 @@ from jinja2 import Template
 
 inputFile = open(sys.argv[1], 'rb')
 tpl = Template(inputFile.read())
-print tpl.render(__environ__=os.environ, **os.environ)
+print(tpl.render(__environ__=os.environ, **os.environ))

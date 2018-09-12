@@ -1,7 +1,11 @@
 """
 Publish docker events
 """
+from __future__ import print_function
+
 import time
+
+from builtins import object
 
 import attr
 
@@ -86,7 +90,7 @@ class EventActor(object):
         Build an instance of this class from the dict coming from the
         docker-py event
         """
-        # this method is called automatically by convert= when instantiating
+        # this method is called automatically by converter= when instantiating
         # an event, but we can skip it if we this is already an actual EventActor
         if isinstance(dct, EventActor):
             return dct
@@ -109,7 +113,7 @@ class Event(object):
     id = attr.ib()
     time = attr.ib()
     timeNano = attr.ib()
-    actor = attr.ib(convert=EventActor.fromLowLevelActor)
+    actor = attr.ib(converter=EventActor.fromLowLevelActor)
     action = attr.ib()
     eventFrom = attr.ib()
     eventType = attr.ib()
@@ -257,7 +261,7 @@ class DockerEngine(object):
         object, for example ".container" for container events.
         """
         def _deco(fn):
-            print "Making %r a handler for %r" % (fn.__name__, eventName)
+            print("Making %r a handler for %r" % (fn.__name__, eventName))
             assert eventName in VALID_EVENTS, "%r is not a docker event" % eventName
             self.handlers.setdefault(eventName, []).append(fn.__name__)
             return fn

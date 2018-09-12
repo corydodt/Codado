@@ -1,6 +1,7 @@
-attrs
+attrs>=18.2.0
 coverage
 crosscap
+future
 jinja2
 mock>=2.0.0,<2.1.0
 pytest-flakes
@@ -11,3 +12,4 @@ pytz>=2015.4
 pyyaml
 tox
 twine
+twisted

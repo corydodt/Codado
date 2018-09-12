@@ -2,9 +2,14 @@
 """
 Tests of codado.py
 """
-import os
-from functools import wraps
+from __future__ import print_function
+
 from datetime import datetime
+import os
+
+from builtins import range, object
+
+import wrapt
 
 from mock import patch
 
@@ -27,7 +32,7 @@ def test_fromdir():
 
     parent = os.path.dirname(cwd)
     fromparent = py.fromdir(parent)
-    print fromparent('')
+    print(fromparent(''))
 
     # callable joins files, and,
     # a fromdir() instance with a file argument acts like sibpath
@@ -44,6 +49,7 @@ def test_fromdir():
 
     # a fromdir() instance expands ~
     assert py.fromdir('~')() == os.environ['HOME']
+
 
 def test_enum():
     """
@@ -64,30 +70,16 @@ def test_enum():
     with raises(KeyError):
         en2.__getitem__('asdf')
 
+
 def test_eachMethod():
     """
     Does eachMethod properly handle unbound methods?
     Does eachMethod not wrap classmethod and staticmethod?
     Does eachMethod properly handle arguments the function is called with?
     """
-    def deco(fn):
-        fClass = fn.im_class
-
-        if fClass is type:
-            @wraps(fn)
-            def boundClassmethod(bound, *a, **kw):
-                return ['deco', fn(*a, **kw)]
-
-            inner = boundClassmethod
-
-        else:
-            @wraps(fn)
-            def unboundInstancemethod(bound, *a, **kw):
-                return ['deco', fn(bound, *a, **kw)]
-
-            inner = unboundInstancemethod
-
-        return inner
+    @wrapt.decorator
+    def deco(wrapped, instance, args, kwargs):
+        return ['deco', wrapped(*args, **kwargs)]
 
     @py.eachMethod(deco, 't_')
     class T(object):
@@ -131,13 +123,14 @@ def test_eachMethod():
     assert tt.t_cm('abc') == ['deco', 't_cmTabc']
     assert T.t_cm('abc') == ['deco', 't_cmTabc']
 
+
 def test_remoji():
     """
     Does it get a stringy, emoji-y string randomly?
     """
     for n in range(100):
         choice = py.remoji() + py.remoji()
-        assert isinstance(choice, unicode)
+        assert isinstance(choice, type(u''))
         assert len(choice) == 2
         assert choice[1] in py.EMOJI
 
