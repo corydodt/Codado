@@ -49,6 +49,7 @@ def test_fromdir():
     # a fromdir() instance expands ~
     assert py.fromdir('~')() == os.environ['HOME']
 
+
 def test_enum():
     """
     Do I permit attribute access to keys?
@@ -67,6 +68,7 @@ def test_enum():
         getattr(en2, 'asdf')
     with raises(KeyError):
         en2.__getitem__('asdf')
+
 
 def test_eachMethod():
     """
@@ -134,6 +136,7 @@ def test_eachMethod():
 
     assert tt.t_cm('abc') == ['deco', 't_cmTabc']
     assert T.t_cm('abc') == ['deco', 't_cmTabc']
+
 
 def test_remoji():
     """

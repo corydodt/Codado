@@ -25,11 +25,7 @@ def test_JSONtoString():
     assert js.toString({}) == '{}'
     assert js.toString(['a', 'b']) == '["a", "b"]'
     assert js.toString(['a', 'b']) == '["a", "b"]'
-    # Minor assymmetry: json key names MUST be strings, so int(345) as a
-    # key becomes string "345".
-    # However, since int(345) sorts BEFORE str("234"), the keys arrive in
-    # this order. :shrug_emoji:
-    assert js.toString({'abc': 1, '234': 234.5, 345: '345'}) == '{"345": "345", "234": 234.5, "abc": 1}'
+    assert js.toString({'abc': 1, '234': 234.5}) == '{"234": 234.5, "abc": 1}'
 
 
 def test_JSONfromString():
