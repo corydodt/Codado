@@ -12,3 +12,4 @@ pytz>=2015.4
 pyyaml
 tox
 twine
+twisted

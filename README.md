@@ -21,12 +21,13 @@ A library of utilities for systems application development
 $ tox
 ```
 
-##  Build/upload
+## Build/upload
 
 Make sure to:
 
 - Update codado/_version.py
 - Update the Change Log below
+- Add and push a tag for the new release
 
 ```
 $ python setup.py sdist bdist_wheel
@@ -37,6 +38,13 @@ $ twine upload dist/*
 ### [0.6.0] - 2018.09.11
 #### Added:
   - Codado fully supports Python 3.6+
+
+#### Changed:
+  - Twisted is now a fullblown dependency of Codado, no longer optional
+
+  - In Python 3, changes to sorting behavior mean that you can no longer include non-string keys
+    safely in your JSON AMP messages; all keys should be strings. (This was good practice anyway,
+    Python was silently converting them to strings.) Removed a test for this behavior.
 
 ### [0.5.2] - 2018.04.21
 #### Changed:
@@ -67,7 +75,7 @@ $ twine upload dist/*
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
-[0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.0
+[0.6.0]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.0
 [0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.1...release-0.5.2
 [0.5.1]: https://github.com/corydodt/Codado/compare/release-0.5.0...release-0.5.1
 [0.5.0]: https://github.com/corydodt/Codado/compare/release-0.4.0...release-0.5.0

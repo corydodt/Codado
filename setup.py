@@ -28,5 +28,6 @@ setup(
         python-dateutil==2.4.0
         pytz>=2015.4
         pyyaml
+        twisted
         ''').split()
 )
