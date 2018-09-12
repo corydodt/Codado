@@ -5,10 +5,11 @@ Tests of codado.py
 from __future__ import print_function
 
 from datetime import datetime
-from functools import wraps
 import os
 
 from builtins import range, object
+
+import wrapt
 
 from mock import patch
 
@@ -76,24 +77,9 @@ def test_eachMethod():
     Does eachMethod not wrap classmethod and staticmethod?
     Does eachMethod properly handle arguments the function is called with?
     """
-    def deco(fn):
-        fClass = fn.__self__.__class__
-
-        if fClass is type:
-            @wraps(fn)
-            def boundClassmethod(bound, *a, **kw):
-                return ['deco', fn(*a, **kw)]
-
-            inner = boundClassmethod
-
-        else:
-            @wraps(fn)
-            def unboundInstancemethod(bound, *a, **kw):
-                return ['deco', fn(bound, *a, **kw)]
-
-            inner = unboundInstancemethod
-
-        return inner
+    @wrapt.decorator
+    def deco(wrapped, instance, args, kwargs):
+        return ['deco', wrapped(*args, **kwargs)]
 
     @py.eachMethod(deco, 't_')
     class T(object):
