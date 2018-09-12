@@ -24,7 +24,7 @@ EMOJI = u'👻👾🤖😼💫👒🎩🐶🦎🐚🌸🌲🍋🥝🥑🥐🍿�
 
 
 def Documentation(*a, **kw): # pragma: nocover
-    warnings.warn("from codado.py Documentation is DEPRECATED. Import from crosscap instead.", DeprecationWarning)
+    warnings.warn("from codado.py import Documentation is DEPRECATED. Import from crosscap instead.", DeprecationWarning)
     return _Documentation(*a, **kw)
 
 
