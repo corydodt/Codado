@@ -2,16 +2,14 @@
 """
 Missing batteries from Python
 """
-from past.builtins import basestring
-from builtins import object
 from datetime import datetime
 import inspect
 import os
 import random
 import warnings
 
-from past.builtins import basestring
 from builtins import object
+from past.builtins import basestring
 
 from mock import Mock
 

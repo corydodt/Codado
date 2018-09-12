@@ -1,7 +1,6 @@
 """
 Tests of the dockerish event bus
 """
-from builtins import object
 import time
 
 from builtins import object
