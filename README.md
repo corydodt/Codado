@@ -34,7 +34,14 @@ $ python setup.py sdist bdist_wheel
 $ twine upload dist/*
 ```
 
+For point releases: Make sure there is a series-0.x branch in github, and branch from that branch.
+
 ## Change Log
+### [0.7.0] - 2019.07.03
+#### Removed:
+  - codado.kleinish (deprecated since 0.5) (#9)
+  - codado.py.doc (deprecated since 0.5) (#9)
+
 ### [0.6.1] - 2018.09.12
 #### Added:
   - Codado fully supports Python 3.6+
@@ -75,6 +82,7 @@ $ twine upload dist/*
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
+[0.7.0]: https://github.com/corydodt/Codado/compare/release-0.6.1...release-0.7.0
 [0.6.1]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.1
 [0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.1...release-0.5.2
 [0.5.1]: https://github.com/corydodt/Codado/compare/release-0.5.0...release-0.5.1
