@@ -7,7 +7,7 @@ exec(open('codado/_version.py').read(), _version)
 
 setup(
     name = 'Codado',
-    packages = ['codado', 'codado.kleinish'],
+    packages = ['codado', ],
     version = _version['__version__'],
     description = 'A collection of system development utilities',
     author = 'Cory Dodt',

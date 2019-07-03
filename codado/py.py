@@ -6,7 +6,6 @@ from datetime import datetime
 import inspect
 import os
 import random
-import warnings
 
 from builtins import object
 from past.builtins import basestring
@@ -17,8 +16,6 @@ from dateutil import parser
 
 from pytz import utc
 
-from crosscap.doc import Documentation as _Documentation, doc as _doc
-
 
 if hasattr(inspect, 'getfullargspec'): # pragma: nocover
     getargspec = inspect.getfullargspec
@@ -27,16 +24,6 @@ else: # pragma: nocover
 
 
 EMOJI = u'👻👾🤖😼💫👒🎩🐶🦎🐚🌸🌲🍋🥝🥑🥐🍿🥄⛺🚂🚲🌈🏆🎵💡✏🖍📌🛡♻'
-
-
-def Documentation(*a, **kw): # pragma: nocover
-    warnings.warn("from codado.py import Documentation is DEPRECATED. Import from crosscap instead.", DeprecationWarning)
-    return _Documentation(*a, **kw)
-
-
-def doc(obj): # pragma: nocover
-    warnings.warn("from codado.py import doc is DEPRECATED. Import from crosscap instead.", DeprecationWarning)
-    return _doc(obj)
 
 
 def eachMethod(decorator, methodFilter=lambda fName: True):

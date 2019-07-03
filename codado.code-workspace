@@ -3,5 +3,8 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"python.pythonPath": "/Users/cory/.virtualenvs/codado3/bin/python"
+	}
 }
