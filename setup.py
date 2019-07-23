@@ -2,13 +2,14 @@ from inspect import cleandoc
 
 from setuptools import setup
 
-_version = {}
-exec(open('codado/_version.py').read(), _version)
 
-setup(
+__version__ = '0.7.0'
+
+
+cfg = dict(
     name = 'Codado',
-    packages = ['codado', ],
-    version = _version['__version__'],
+    packages = ['codado'],
+    version = __version__,
     description = 'A collection of system development utilities',
     author = 'Cory Dodt',
     author_email = 'corydodt@gmail.com',
@@ -25,9 +26,25 @@ setup(
         crosscap
         jinja2
         mock>=2.0.0,<2.1.0
-        python-dateutil==2.4.0
+        python-dateutil
         pytz>=2015.4
         pyyaml
         twisted
-        ''').split()
+        ''').split(),
+    extras_require={
+        'dev': [
+            'tox',
+            'pytest',
+            'pytest-coverage',
+            'pytest-flakes',
+            'pytest-twisted',
+            'klein',
+            'docker',
+            'wrapt',
+        ]
+    },
+    zip_safe=False,
 )
+
+
+setup(**cfg)
