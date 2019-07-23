@@ -37,6 +37,11 @@ $ twine upload dist/*
 For point releases: Make sure there is a series-0.x branch in github, and branch from that branch.
 
 ## Change Log
+
+
+#### Fixed:
+    - stop overspecifying python-dateutil to allow dependents to install more easily
+
 ### [0.7.0] - 2019.07.03
 #### Removed:
   - codado.kleinish (deprecated since 0.5) (#9)
