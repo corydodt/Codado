@@ -27,10 +27,11 @@ Make sure to:
 
 - Update codado/_version.py
 - Update the Change Log below
+- **Commit the changes to the above files**
 - Add and push a tag for the new release
 
 ```
-$ python setup.py sdist bdist_wheel
+$ python3 setup.py sdist bdist_wheel && python2 setup.py bdist_wheel
 $ twine upload dist/*
 ```
 
@@ -39,8 +40,9 @@ For point releases: Make sure there is a series-0.x branch in github, and branch
 ## Change Log
 
 
+### [0.7.2] - 2019.07.23
 #### Fixed:
-    - stop overspecifying python-dateutil to allow dependents to install more easily
+  - stop overspecifying python-dateutil to allow dependents to install more easily
 
 ### [0.7.0] - 2019.07.03
 #### Removed:
@@ -87,6 +89,7 @@ For point releases: Make sure there is a series-0.x branch in github, and branch
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
+[0.7.2]: https://github.com/corydodt/Codado/compare/release-0.7.0...release-0.7.2
 [0.7.0]: https://github.com/corydodt/Codado/compare/release-0.6.1...release-0.7.0
 [0.6.1]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.1
 [0.5.2]: https://github.com/corydodt/Codado/compare/release-0.5.1...release-0.5.2
