@@ -11,9 +11,7 @@ A library of utilities for systems application development
 - codado.utcnowTZ: utcnow, but there's actually a timezone on it
 - codado.parseDate: sensible datestring parser
 - codado.tx.Main: a Twisted Usage helper that creates a useful main() function
-- codado.dockerish: a docker event listener that integrates with the Twisted
-  event loop and can automatically call handlers for events
-  into another class with a "subklein" of other routes
+- codado.hotedit: open a local editor with a string, edit it as a temp file and get the edited string back
 
 ## Running Tests
 
@@ -39,6 +37,9 @@ For point releases: Make sure there is a series-0.x branch in github, and branch
 
 ## Change Log
 
+### [0.7.3] - 2019.11.26
+#### Added:
+    - hotedit.hotedit() for opening your favorite local editor and getting the results back as a string
 
 ### [0.7.2] - 2019.07.23
 #### Fixed:
@@ -89,6 +90,7 @@ For point releases: Make sure there is a series-0.x branch in github, and branch
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
+[0.7.3]: https://github.com/corydodt/Codado/compare/release-0.7.2...release-0.7.3
 [0.7.2]: https://github.com/corydodt/Codado/compare/release-0.7.0...release-0.7.2
 [0.7.0]: https://github.com/corydodt/Codado/compare/release-0.6.1...release-0.7.0
 [0.6.1]: https://github.com/corydodt/Codado/compare/release-0.5.2...release-0.6.1
