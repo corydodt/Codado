@@ -3,7 +3,7 @@ from inspect import cleandoc
 from setuptools import setup
 
 
-__version__ = '0.7.2'
+__version__ = '0.7.4'
 
 
 cfg = dict(
