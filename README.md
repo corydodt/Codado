@@ -42,7 +42,7 @@ For point releases: Make sure there is a series-0.x branch in github, and branch
 
 ### [0.7.4] - 2019.11.26
 #### Added:
-    - hotedit.hotedit() for opening your favorite local editor and getting the results back as a string
+  - hotedit.hotedit() for opening your favorite local editor and getting the results back as a string
 
 ### [0.7.2] - 2019.07.23
 #### Fixed:
