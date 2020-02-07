@@ -22,7 +22,7 @@ class HoteditException(Exception):
 
 class EditingException(HoteditException):
     """
-    Raised to signal that an edited file was left unchanged
+    Raised to signal that the editor we invoked errored out for some reason
     """
 
 
