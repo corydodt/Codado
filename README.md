@@ -39,9 +39,10 @@ Make sure to:
 
 ## Change Log
 
-### [0.7.5] - 2020.02.26
+### [0.7.6] - 2020.02.26
 #### Changed:
   - The version of mock is no longer strictly specified, allowing higher versions to be used while this package is installed
+  - Fix find_packages usage in setup.py
 
 ### [0.7.4] - 2019.11.26
 #### Added:
@@ -96,7 +97,7 @@ Make sure to:
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
-[0.7.5]: https://github.com/corydodt/Codado/compare/release-0.7.4...release-0.7.5
+[0.7.6]: https://github.com/corydodt/Codado/compare/release-0.7.4...release-0.7.6
 [0.7.4]: https://github.com/corydodt/Codado/compare/release-0.7.2...release-0.7.4
 [0.7.2]: https://github.com/corydodt/Codado/compare/release-0.7.0...release-0.7.2
 [0.7.0]: https://github.com/corydodt/Codado/compare/release-0.6.1...release-0.7.0
