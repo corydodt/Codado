@@ -1,14 +1,14 @@
 from inspect import cleandoc
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
-__version__ = '0.7.5'
+__version__ = '0.7.6'
 
 
 cfg = dict(
     name = 'Codado',
-    packages = ['codado'],
+    packages = find_packages('.', include=['codado', 'codado.*']),
     version = __version__,
     description = 'A collection of system development utilities',
     author = 'Cory Dodt',
