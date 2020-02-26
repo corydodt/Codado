@@ -29,14 +29,13 @@ Make sure to:
 - Update version in setup.py
 - Update the Change Log below
 - **Commit the changes to the above files**
+- ```
+  python3 setup.py sdist bdist_wheel && python2 setup.py bdist_wheel
+  ```
 - Add and push a tag for the new release
-
-```
-$ python3 setup.py sdist bdist_wheel && python2 setup.py bdist_wheel
-$ twine upload dist/*
-```
-
-For point releases: Make sure there is a series-0.x branch in github, and branch from that branch.
+- ```
+  $ twine upload dist/*
+  ```
 
 ## Change Log
 
