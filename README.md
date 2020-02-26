@@ -26,7 +26,7 @@ $ tox
 
 Make sure to:
 
-- Update codado/_version.py
+- Update version in setup.py
 - Update the Change Log below
 - **Commit the changes to the above files**
 - Add and push a tag for the new release
@@ -39,6 +39,10 @@ $ twine upload dist/*
 For point releases: Make sure there is a series-0.x branch in github, and branch from that branch.
 
 ## Change Log
+
+### [0.7.5] - 2020.02.26
+#### Changed:
+  - The version of mock is no longer strictly specified, allowing higher versions to be used while this package is installed
 
 ### [0.7.4] - 2019.11.26
 #### Added:
@@ -93,6 +97,7 @@ For point releases: Make sure there is a series-0.x branch in github, and branch
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
+[0.7.5]: https://github.com/corydodt/Codado/compare/release-0.7.4...release-0.7.5
 [0.7.4]: https://github.com/corydodt/Codado/compare/release-0.7.2...release-0.7.4
 [0.7.2]: https://github.com/corydodt/Codado/compare/release-0.7.0...release-0.7.2
 [0.7.0]: https://github.com/corydodt/Codado/compare/release-0.6.1...release-0.7.0

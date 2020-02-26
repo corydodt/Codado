@@ -3,7 +3,7 @@ from inspect import cleandoc
 from setuptools import setup
 
 
-__version__ = '0.7.4'
+__version__ = '0.7.5'
 
 
 cfg = dict(
@@ -25,7 +25,7 @@ cfg = dict(
         attrs>=17.1.0
         crosscap
         jinja2
-        mock>=2.0.0,<2.1.0
+        mock
         python-dateutil
         pytz>=2015.4
         pyyaml
