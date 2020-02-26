@@ -41,6 +41,7 @@ cfg = dict(
             'klein',
             'docker',
             'wrapt',
+            'wheel',
         ]
     },
     zip_safe=False,
