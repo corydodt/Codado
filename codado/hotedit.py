@@ -44,7 +44,8 @@ def determine_editor(fallback=EDITOR_FALLBACK):
     If fallback=None, and none of these is a usable editor, raise OSError
     """
     try:
-        ret = subprocess.check_output(shlex.split('git config core.editor'))
+        ret = subprocess.check_output(shlex.split('git config core.editor'),
+                text=True)
         return ret.strip()
     except subprocess.CalledProcessError:
         "git config core.editor didn't work, falling back to environment"

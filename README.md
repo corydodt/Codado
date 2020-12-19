@@ -39,6 +39,11 @@ Make sure to:
 
 ## Change Log
 
+### [0.8.0] - 2020.12.18
+#### Fixed:
+  - Fix hotedit invocation in Python 3 (check_output returns bytes) (#21)
+  - This change officially breaks backwards compatibility with Python 2
+
 ### [0.7.6] - 2020.02.26
 #### Changed:
   - The version of mock is no longer strictly specified, allowing higher versions to be used while this package is installed
@@ -97,6 +102,7 @@ Make sure to:
   - 0.4: Initial public usable release
 
 [Crosscap]: https://github.com/corydodt/Crosscap
+[0.8.0]: https://github.com/corydodt/Codado/compare/release-0.7.6...release-0.8.0
 [0.7.6]: https://github.com/corydodt/Codado/compare/release-0.7.4...release-0.7.6
 [0.7.4]: https://github.com/corydodt/Codado/compare/release-0.7.2...release-0.7.4
 [0.7.2]: https://github.com/corydodt/Codado/compare/release-0.7.0...release-0.7.2
